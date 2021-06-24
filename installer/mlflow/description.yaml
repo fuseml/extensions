@@ -1,0 +1,17 @@
+name: mlflow
+description: |
+  MLFlow is an open source platform specialized in tracking ML experiments, and packaging and deploying ML models.
+namespace:
+install:
+  - type: helm
+    location: https://github.com/fuseml/extensions/raw/main/charts/mlflow-0.0.1.tgz
+    values:
+uninstall:
+  - type: helm
+gateways:
+  - name: mlflow
+    servicehost: mlflow
+    port: 80
+  - name: minio
+    servicehost: mlflow-minio
+    port: 9000
