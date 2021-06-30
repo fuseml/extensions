@@ -1,0 +1,10 @@
+name: kfserving
+description: |
+  Serverless Inferencing on Kubernetes
+namespace: kfserving-system
+install:
+  - type: manifest
+    location: kfserving-v0.5.1-v1beta1.yaml
+uninstall:
+  - type: manifest
+    location: kfserving-v0.5.1-v1beta1.yaml
