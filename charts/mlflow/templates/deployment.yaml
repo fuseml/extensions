@@ -33,10 +33,10 @@ spec:
             - name: WORKERS
               value: "{{ .Values.workers }}"
             - name: BACKEND_URI
-            {{- if .Values.mysql.enabled }}
+            {{- if or (.Values.mysql.enabled) (.Values.postgresql.enabled) }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ printf "%s-mysql-conn" (include "mlflow.fullname" .) }}
+                  name: {{ printf "%s-db-conn" (include "mlflow.fullname" .) }}
                   key: DB_CONNECT_URL
             {{- else }}
               value: "sqlite:///{{ .Values.persistence.persistentVolumeClaim.sqlite.rootDirectory }}/mlflow.db"

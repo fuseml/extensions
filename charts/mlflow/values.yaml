@@ -59,9 +59,19 @@ tolerations: []
 affinity: {}
 podAnnotations: {}
 
+postgresql:
+  enabled: true
+  global:
+    postgresql:
+      postgresqlDatabase: mlflow-tracking
+      postgresqlUsername: mlflow
+      postgresqlPassword: mlflowdbpwd
+  persistence:
+    size: 2Gi
+
 
 mysql:
-  enabled: true
+  enabled: false
   auth:
     database: mlflow-tracking
     username: mlflow

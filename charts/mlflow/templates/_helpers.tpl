@@ -88,6 +88,14 @@ Create the name of the service account to use
   {{- end -}}
 {{- end -}}
 
+{{- define "db.connectURL" -}}
+  {{- if .Values.postgresql.enabled -}}
+{{ include "posgresql.connectURL" . }}
+  {{- else if.Values.mysql.enabled -}}
+{{ include "mysql.connectURL" . }}
+  {{- end -}}
+{{- end -}}
+
 {{- define "mysql.connectURL" -}}
 mysql+pymysql://
 {{- if .Values.mysql.auth.username -}}
@@ -99,5 +107,19 @@ mysql+pymysql://
 {{- end -}}
 {{- if .Values.mysql.auth.database -}}
 /{{- .Values.mysql.auth.database -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "posgresql.connectURL" -}}
+postgresql://
+{{- if .Values.postgresql.global.postgresql.postgresqlUsername -}}
+    {{ urlquery .Values.postgresql.global.postgresql.postgresqlUsername -}}
+    {{- if .Values.postgresql.global.postgresql.postgresqlPassword -}}
+        :{{ urlquery .Values.postgresql.global.postgresql.postgresqlPassword }}
+    {{- end -}}
+@{{ printf "%s-postgresql" (include "mlflow.fullname" .) }}
+{{- end -}}
+{{- if .Values.postgresql.global.postgresql.postgresqlDatabase -}}
+/{{- .Values.postgresql.global.postgresql.postgresqlDatabase -}}
 {{- end -}}
 {{- end -}}
