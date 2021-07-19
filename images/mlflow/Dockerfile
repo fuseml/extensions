@@ -18,7 +18,7 @@ CMD mlflow server --workers ${WORKERS} --backend-store-uri ${BACKEND_URI} --defa
 # Leave these args here to better use the Docker build cache
 ARG CONDA_VERSION=py38_4.9.2
 ARG CONDA_MD5=122c8c9beb51e124ab32a0fa6426c656
-ARG MLFLOW_VERSION=1.14.1
+ARG MLFLOW_VERSION=1.19.0
 
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh -O miniconda.sh && \
     echo "${CONDA_MD5}  miniconda.sh" > miniconda.md5 && \
