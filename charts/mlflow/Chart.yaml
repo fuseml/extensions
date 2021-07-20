@@ -1,10 +1,14 @@
 apiVersion: v2
-appVersion: 1.14.1
+appVersion: 1.19.0
 dependencies:
+- condition: postgresql.enabled
+  name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.3.17
 - condition: mysql.enabled
   name: mysql
   repository: https://charts.bitnami.com/bitnami
-  version: 8.4.1
+  version: 8.7.2
 - condition: minio.enabled
   name: minio
   repository: https://helm.min.io/
