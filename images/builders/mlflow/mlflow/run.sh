@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 set -u
@@ -17,3 +17,4 @@ model_uri="$(mlflow runs describe --run-id ${run_id} | grep -oEm1 's3.*artifacts
 if [ -n "$TASK_RESULT" ]; then
     printf "${model_uri}" > /tekton/results/${TASK_RESULT}
 fi
+

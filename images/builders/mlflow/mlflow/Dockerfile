@@ -1,14 +1,24 @@
+FROM continuumio/miniconda3:4.9.2-alpine
 
-FROM ghcr.io/fuseml/mlflow:1.14.1
+RUN apk add --no-cache bash git
 
 COPY conda.yaml /env/
-RUN env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
-	sed -i "s/base/$env/" /root/.bashrc
 
+RUN env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
+   printf ". /opt/conda/etc/profile.d/conda.sh\nconda activate ${env}" > /root/.bashrc
+
+ENV PIP_NO_CACHE_DIR=off
 ENV BASH_ENV /root/.bashrc
-RUN conda env create -f /env/conda.yaml
+
+RUN conda update conda && \
+  conda env create -f /env/conda.yaml && \
+  find /opt/conda/ -follow -type f -name '*.a' -delete && \
+  find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
+  conda clean -afy
 
 COPY .fuseml/run.sh /usr/local/bin/run
 
+WORKDIR /workspace
+
 CMD [ "run" ]
-	
+
