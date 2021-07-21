@@ -14,20 +14,49 @@ else
     export PROJECT=$(tr -dc a-z0-9 </dev/urandom | head -c 6 ; echo '')
 fi
 
-# kfserving expects the model file as model.joblib however mlflow
-# saves the model as model.pkl, so if there is no model.joblib,
-# create a copy named model.joblib from model.pkl
 mc alias set minio http://mlflow-minio:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY}
 model_bucket="minio${FUSEML_MODEL//s3:\//}"
-if ! mc ls ${model_bucket} | grep -q "model.joblib"; then
-    mc cp ${model_bucket}/model.pkl ${model_bucket}/model.joblib
+
+export PROTOCOL_VERSION="v1"
+export PREDICTOR=${FUSEML_PREDICTOR}
+if [ "${PREDICTOR}" = "auto" ]; then
+    if ! mc stat ${model_bucket}/MLmodel &> /dev/null ; then
+        echo "No MLmodel found, cannot auto detect predictor"
+        exit 1
+    fi
+
+    PREDICTOR=$(mc cat ${model_bucket}/MLmodel | awk -F '.' '/loader_module:/ {print $2}')
 fi
+
+isvc="${ORG}-${PROJECT}"
+case $PREDICTOR in
+    # kfserving expects the tensorflow model to be under a numbered directory,
+    # however mlflow saves the model under 'tfmodel', so if there is no directory
+    # named '1', create it and copy the tensorflow model to it.
+    tensorflow)
+        if [ "$(mc find ${model_bucket} --name 1)" = "" ]; then
+            mc cp -r ${model_bucket}/tfmodel/ ${model_bucket}/1
+        fi
+        export RUNTIME_VERSION=$(mc cat ${model_bucket}/requirements.txt | awk -F '=' '/tensorflow/ {print $3}')
+        prediction_url_path="${isvc}:predict"
+        ;;
+    # kfserving expects the sklearn model file as model.joblib however mlflow
+    # saves the model as model.pkl, so if there is no model.joblib, create a
+    # copy named model.joblib from model.pkl
+    sklearn)
+        if ! mc ls ${model_bucket} | grep -q "model.joblib"; then
+            mc cp ${model_bucket}/model.pkl ${model_bucket}/model.joblib
+        fi
+        export PROTOCOL_VERSION="v2"
+        prediction_url_path="${isvc}/infer"
+        ;;
+esac
 
 envsubst < /root/template.sh | kubectl apply -f -
 
-isvc="${ORG}-${PROJECT}"
+
 kubectl wait --for=condition=Ready --timeout=600s inferenceservice/${isvc}
-prediction_url="$(kubectl get inferenceservice/${isvc} -o jsonpath='{.status.url}')/v2/models/${isvc}/infer"
+prediction_url="$(kubectl get inferenceservice/${isvc} -o jsonpath='{.status.url}')/${PROTOCOL_VERSION}/models/${prediction_url_path}"
 printf "${prediction_url}" > /tekton/results/${TASK_RESULT}
 
 # Now, register the new application within fuseml

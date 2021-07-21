@@ -30,8 +30,9 @@ spec:
   predictor:
     serviceAccountName: "${ORG}-${PROJECT}-kfserving"
     timeout: 60
-    sklearn:
-      protocolVersion: v2
+    ${PREDICTOR}:
+      protocolVersion: ${PROTOCOL_VERSION}
+      runtimeVersion: ${RUNTIME_VERSION}
       storageUri: "${FUSEML_MODEL}"
       resources:
         limits:
