@@ -1,11 +1,26 @@
+FROM gcr.io/kaniko-project/executor:v1.6.0 AS kaniko
 
-FROM alpine
+FROM alpine:latest
 
-ENV FUSEML_FILES=/fuseml-dockerfiles
+COPY --from=kaniko /kaniko /kaniko
+ENV HOME /root
+ENV USER root
+ENV PATH $PATH:/usr/local/bin:/kaniko
+ENV DOCKER_CONFIG /kaniko/.docker/
 
-COPY mlflow ${FUSEML_FILES}/
+WORKDIR /workspace
 
+RUN apk add --no-cache ca-certificates jq curl unzip
+
+RUN curl -LO https://github.com/mayflower/docker-ls/releases/latest/download/docker-ls-linux-amd64.zip \
+  && unzip docker-ls-linux-amd64.zip -d /usr/local/bin \
+  && rm docker-ls-linux-amd64.zip \
+  && apk del curl unzip \
+  && rm -rf /var/spool
+
+ENV MLFLOW_DOCKERFILE=/fuseml-mlflow
+
+COPY mlflow/ ${MLFLOW_DOCKERFILE}/
 COPY run.sh /usr/local/bin/run
 
-ENTRYPOINT [ "run" ]
-	
+ENTRYPOINT ["run"]

@@ -4,14 +4,14 @@ RUN apk add --no-cache bash git
 
 COPY conda.yaml /env/
 
-RUN env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
-   printf ". /opt/conda/etc/profile.d/conda.sh\nconda activate ${env}" > /root/.bashrc
-
 ENV PIP_NO_CACHE_DIR=off
 ENV BASH_ENV /root/.bashrc
 
-RUN conda update conda && \
+RUN env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
+  printf ". /opt/conda/etc/profile.d/conda.sh\nconda activate ${env}" > /root/.bashrc && \
+  conda update conda && \
   conda env create -f /env/conda.yaml && \
+  conda install -n ${env} boto3 && \
   find /opt/conda/ -follow -type f -name '*.a' -delete && \
   find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
   conda clean -afy
