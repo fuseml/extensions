@@ -1,6 +1,4 @@
-FROM continuumio/miniconda3:4.9.2-alpine
-
-RUN apk add --no-cache bash git
+FROM continuumio/miniconda3:4.10.3-alpine
 
 COPY conda.yaml /env/
 
