@@ -1,0 +1,27 @@
+name: knative
+description: |
+  Kubernetes-based, scale-to-zero, request-driven compute
+namespace:
+install:
+  - type: manifest
+    location: https://github.com/knative/serving/releases/download/v0.24.0/serving-crds.yaml
+    namespace:
+  - type: manifest
+    location: https://github.com/knative/serving/releases/download/v0.24.0/serving-core.yaml
+    namespace: knative-serving
+    waitfor: pods 
+  - type: manifest
+    location: https://github.com/knative-sandbox/net-istio/releases/download/v0.24.0/release.yaml
+    namespace:
+  - type: script
+    location: wait-for-config.sh
+  - type: script
+    location: patch-knative-domain.sh
+uninstall:
+  - type: manifest
+    location: https://github.com/knative-sandbox/net-istio/releases/download/v0.24.0/release.yaml
+  - type: manifest
+    location: https://github.com/knative/serving/releases/download/v0.24.0/serving-core.yaml
+    namespace: knative-serving
+  - type: manifest
+    location: https://github.com/knative/serving/releases/download/v0.24.0/serving-crds.yaml
