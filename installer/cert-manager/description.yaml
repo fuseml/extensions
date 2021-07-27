@@ -1,0 +1,12 @@
+name: cert-manager
+description: |
+  Automatically provision and manage TLS certificates in Kubernetes
+namespace:
+install:
+  - type: manifest
+    location: https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.yaml
+  - type: script
+    location: wait-until-available.sh
+uninstall:
+  - type: manifest
+    location: https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.yaml
