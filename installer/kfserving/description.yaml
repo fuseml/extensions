@@ -3,8 +3,10 @@ description: |
   Serverless Inferencing on Kubernetes
 namespace: kfserving-system
 install:
-  - type: manifest
-    location: kfserving-v0.5.1-v1beta1.yaml
+  - type: kustomize
+    location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
+  - type: script
+    location: wait-for-rollout-status.sh
 uninstall:
-  - type: manifest
-    location: kfserving-v0.5.1-v1beta1.yaml
+  - type: kustomize
+    location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
