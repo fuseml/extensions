@@ -8,12 +8,17 @@ install:
   - type: manifest
     location: https://github.com/knative/serving/releases/download/v0.24.0/serving-core.yaml
     namespace: knative-serving
-    waitfor: pods 
+    waitfor:
+      - namespace: knative-serving
+        selector: all
   - type: manifest
     location: https://github.com/knative-sandbox/net-istio/releases/download/v0.24.0/release.yaml
-    namespace:
-  - type: script
-    location: wait-for-config.sh
+    waitfor:
+      - kind: deployment
+        selector: networking.knative.dev/ingress-provider=istio
+        namespace: knative-serving
+        condition: available
+        timeout: 600
   - type: script
     location: patch-knative-domain.sh
 uninstall:
