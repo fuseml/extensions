@@ -8,6 +8,7 @@ install:
     values:
 uninstall:
   - type: helm
+    namespace: fuseml-workloads
 gateways:
   - name: mlflow
     servicehost: mlflow
