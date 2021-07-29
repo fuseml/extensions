@@ -5,8 +5,11 @@ namespace:
 install:
   - type: manifest
     location: https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.yaml
-  - type: script
-    location: wait-until-available.sh
+    waitfor:
+      - kind: deployment
+        namespace: cert-manager
+        selector: app=webhook
+        condition: available
 uninstall:
   - type: manifest
     location: https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.yaml
