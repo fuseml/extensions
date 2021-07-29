@@ -4,8 +4,9 @@ description: |
 install:
   - type: kustomize
     location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
-  - type: script
-    location: wait-for-rollout-status.sh
+    waitfor:
+      - namespace: kfserving-system
+        selector: all
 uninstall:
   - type: kustomize
     location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
