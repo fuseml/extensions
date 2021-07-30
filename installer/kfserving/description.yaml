@@ -1,6 +1,8 @@
 name: kfserving
 description: |
   Serverless Inferencing on Kubernetes
+requires:
+  - knative
 install:
   - type: kustomize
     location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
