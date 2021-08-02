@@ -1,8 +1,6 @@
 name: knative
 description: |
   Kubernetes-based, scale-to-zero, request-driven compute
-requires:
-  - cert-manager
 install:
   - type: manifest
     location: https://github.com/knative/serving/releases/download/v0.24.0/serving-crds.yaml
