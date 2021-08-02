@@ -3,6 +3,7 @@ description: |
   Serverless Inferencing on Kubernetes
 requires:
   - knative
+  - cert-manager
 install:
   - type: kustomize
     location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
