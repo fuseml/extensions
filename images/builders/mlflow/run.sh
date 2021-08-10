@@ -36,7 +36,8 @@ if [ ! -f "${conda_file}" ]; then
     exit 1
 fi
 
-registry=${FUSEML_REGISTRY:-"registry.fuseml-registry"}
+
+registry=${FUSEML_REGISTRY:-"registry.fuseml-registry:5000"}
 repository=${FUSEML_REPOSITORY:-"mlflow/trainer"}
 tag=$(get_tag)
 
@@ -44,13 +45,15 @@ tag=$(get_tag)
 # using the localhost address (see https://github.com/fuseml/fuseml/issues/65).
 destination="${FUSEML_REGISTRY:-127.0.0.1:30500}/${repository}:${tag}"
 
-if docker-ls tags ${repository} -r http://${registry} -j | jq -re ".tags | index(\"${tag}\")" &>/dev/null; then
+if docker-ls tags --basic-auth -u admin -p password ${repository} -r http://${registry} -j | jq -re ".tags | index(\"${tag}\")" &>/dev/null; then
     echo "${repository}:${tag} already exists, not building"
 else
     echo "${repository}:${tag} not found in ${registry}, building..."
     mkdir -p .fuseml
     cp -r ${MLFLOW_DOCKERFILE}/* .fuseml/
 
+    export DOCKER_CONFIG=/tekton/home/.docker
+    sed -i 's/.fuseml-registry"/.fuseml-registry:5000"/' ${DOCKER_CONFIG}/config.json
     /kaniko/executor --insecure --dockerfile=.fuseml/Dockerfile  --context=./ --destination=${registry}/${repository}:${tag}
 fi
 
