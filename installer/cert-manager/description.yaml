@@ -1,4 +1,6 @@
 name: cert-manager
+product: cert-manager
+version: "1.4.0"
 description: |
   Automatically provision and manage TLS certificates in Kubernetes
 namespace:

@@ -1,4 +1,6 @@
 name: knative
+product: knative
+version: "0.24.0"
 description: |
   Kubernetes-based, scale-to-zero, request-driven compute
 install:

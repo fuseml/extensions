@@ -1,14 +1,15 @@
 name: mlflow
+product: mlflow
+version: "1.19.0"
 description: |
   MLFlow is an open source platform specialized in tracking ML experiments, and packaging and deploying ML models.
+namespace: fuseml-workloads
 install:
   - type: helm
     location: https://github.com/fuseml/extensions/raw/main/charts/mlflow-0.0.1.tgz
-    namespace: fuseml-workloads
     values:
 uninstall:
   - type: helm
-    namespace: fuseml-workloads
 gateways:
   - name: mlflow
     servicehost: mlflow
@@ -16,3 +17,24 @@ gateways:
   - name: minio
     servicehost: mlflow-minio
     port: 9000
+services:
+  - id: mlflow-tracking
+    resource: mlflow-tracking
+    category: experiment-tracking
+    description: MLFlow experiment tracking service API and UI
+    auth_required: False
+    endpoints:
+      - url: http://mlflow
+        type: internal
+        configuration:
+          MLFLOW_TRACKING_URI: http://mlflow
+  - id: mlflow-store
+    resource: s3
+    category: model-store
+    description: MLFlow minio S3 storage back-end
+    auth_required: True
+    endpoints:
+      - url: http://mlflow-minio:9000
+        type: internal
+        configuration:
+          MLFLOW_S3_ENDPOINT_URL: http://mlflow-minio:9000
