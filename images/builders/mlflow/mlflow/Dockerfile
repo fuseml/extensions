@@ -5,9 +5,9 @@ COPY conda.yaml /env/
 ENV PIP_NO_CACHE_DIR=off
 ENV BASH_ENV /root/.bashrc
 
-RUN env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
+RUN apk add -q --no-cache git && \
+  env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
   printf ". /opt/conda/etc/profile.d/conda.sh\nconda activate ${env}" > /root/.bashrc && \
-  conda update conda && \
   conda env create -f /env/conda.yaml && \
   conda install -n ${env} boto3 && \
   find /opt/conda/ -follow -type f -name '*.a' -delete && \
