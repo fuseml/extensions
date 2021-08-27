@@ -1,4 +1,6 @@
 name: kfserving
+product: kfserving
+version: "0.6.0"
 description: |
   Serverless Inferencing on Kubernetes
 requires:
@@ -13,3 +15,15 @@ install:
 uninstall:
   - type: kustomize
     location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
+services:
+  - id: API
+    resource: kfserving-api
+    category: prediction-serving
+    description: KFServing prediction service API
+    endpoints:
+      - url: http://kubernetes.default.svc
+        type: internal
+  - name: UI
+    resource: kfserving-ui
+    category: UI
+    description: KFServing UI
