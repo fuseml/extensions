@@ -22,7 +22,7 @@ services:
     resource: mlflow-tracking
     category: experiment-tracking
     description: MLFlow experiment tracking service API and UI
-    auth_required: False
+    authrequired: False
     endpoints:
       - url: http://mlflow
         type: internal
@@ -32,9 +32,24 @@ services:
     resource: s3
     category: model-store
     description: MLFlow minio S3 storage back-end
-    auth_required: True
+    authrequired: True
     endpoints:
       - url: http://mlflow-minio:9000
         type: internal
         configuration:
           MLFLOW_S3_ENDPOINT_URL: http://mlflow-minio:9000
+    credentials:
+      - id: default-s3-account
+servicecredentials:
+  - serviceid: mlflow-store
+    credentials:
+      - id: default-s3-account
+        transform:
+          - configvalue: AWS_KEY_ID
+            secret: mlflow-minio
+            namespace: fuseml-workloads
+            secretvalue: accesskey
+          - configvalue: AWS_SECRET_ACCESS_KEY
+            secret: mlflow-minio
+            namespace: fuseml-workloads
+            secretvalue: secretkey
