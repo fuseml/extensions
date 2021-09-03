@@ -45,7 +45,7 @@ servicecredentials:
     credentials:
       - id: default-s3-account
         transform:
-          - configvalue: AWS_KEY_ID
+          - configvalue: AWS_ACCESS_KEY_ID
             secret: mlflow-minio
             namespace: fuseml-workloads
             secretvalue: accesskey
