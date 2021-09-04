@@ -23,4 +23,8 @@ ENV MLFLOW_DOCKERFILE=/fuseml-mlflow
 COPY mlflow/ ${MLFLOW_DOCKERFILE}/
 COPY run.sh /usr/local/bin/run
 
+# inject a value that is unique for every version of the built container image,
+# to use it to reset the conda dependencies cache between image updates
+RUN date +"%Y-%m-%d_%H-%M-%S" > /build-timestamp.txt
+
 ENTRYPOINT ["run"]

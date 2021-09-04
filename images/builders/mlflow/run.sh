@@ -26,7 +26,8 @@ get_tag() {
         esac
     done <"${file}"
 
-    printf "$dependencies" | sort | cksum | cut -f 1 -d ' '
+    # insert the date to allow new container image versions to invalidate previously built builder containers
+    printf "$(cat /build-timestamp.txt)$dependencies" | sort | cksum | cut -f 1 -d ' '
 }
 
 conda_file="conda.yaml"
