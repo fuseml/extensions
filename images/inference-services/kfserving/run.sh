@@ -13,8 +13,10 @@ else
     export ORG=$(tr -dc a-z0-9 </dev/urandom | head -c 6 ; echo '')
     export PROJECT=$(tr -dc a-z0-9 </dev/urandom | head -c 6 ; echo '')
 fi
+export S3_ENDPOINT=${MLFLOW_S3_ENDPOINT_URL/*:\/\//}
 
-mc alias set minio http://mlflow-minio:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY}
+
+mc alias set minio ${MLFLOW_S3_ENDPOINT_URL} ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY}
 model_bucket="minio${FUSEML_MODEL//s3:\//}"
 
 export PROTOCOL_VERSION="v1"
