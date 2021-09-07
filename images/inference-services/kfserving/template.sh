@@ -4,7 +4,7 @@ kind: Secret
 metadata:
   name: "${ORG}-${PROJECT}-storage"
   annotations:
-     serving.kubeflow.org/s3-endpoint: mlflow-minio:9000
+     serving.kubeflow.org/s3-endpoint: ${S3_ENDPOINT}
      serving.kubeflow.org/s3-usehttps: "0"
 type: Opaque
 stringData:
