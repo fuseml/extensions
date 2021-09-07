@@ -23,7 +23,7 @@ services:
     endpoints:
       - url: http://kubernetes.default.svc
         type: internal
-  - name: UI
+  - id: UI
     resource: kfserving-ui
     category: UI
     description: KFServing UI
