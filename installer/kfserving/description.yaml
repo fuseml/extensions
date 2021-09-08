@@ -8,13 +8,13 @@ requires:
   - cert-manager
 install:
   - type: kustomize
-    location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
+    location: https://github.com/fuseml/extensions/installer/kfserving/kustomize?ref=release-0.2
     waitfor:
       - namespace: kfserving-system
         selector: all
 uninstall:
   - type: kustomize
-    location: https://github.com/fuseml/extensions/installer/kfserving/kustomize
+    location: https://github.com/fuseml/extensions/installer/kfserving/kustomize?ref=release-0.2
 services:
   - id: API
     resource: kfserving-api
