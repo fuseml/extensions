@@ -19,7 +19,11 @@ ENV KUBE_LATEST_VERSION="v1.20.5"
 RUN apk add --update gettext \
   && apk add --update ca-certificates \
   && apk add --update curl \
-  && export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; fi && curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/${ARCH}/kubectl -o /usr/local/bin/kubectl \
+  && export ARCH="$(uname -m)" \
+  && export OS=$(uname|tr '[:upper:]' '[:lower:]') \
+  && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; fi \
+  && if [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi \
+  && curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/${OS}/${ARCH}/kubectl -o /usr/local/bin/kubectl \
   && chmod +x /usr/local/bin/kubectl \
   && rm /var/cache/apk/*
 

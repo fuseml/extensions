@@ -26,6 +26,8 @@ docker-build: docker-build-extensions docker-build-mlflow
 
 docker-push: docker-push-extensions docker-push-mlflow
 
+docker-release: docker-release-extensions docker-release-mlflow
+
 # Build the docker images for workflow extensions
 docker-build-extensions:
 	docker build ./builders/mlflow -t ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG}
@@ -43,3 +45,12 @@ docker-push-extensions:
 # Push the docker image for the MLFlow tracking service
 docker-push-mlflow:
 	docker push ${REGISTRY}/${MLFLOW_REPO}:${MLFLOW_VERSION}
+
+# Build and release multi-arch docker images for workflow extensions
+docker-release-extensions:
+	docker buildx build ./builders/mlflow -t ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
+	docker buildx build ./inference-services/kfserving -t ${REGISTRY}/${KFSERVING_PREDICTOR_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
+
+# Build and release multi-arch docker images for workflow extensions
+docker-release-mlflow:
+	docker buildx build ./mlflow -t ${REGISTRY}/${MLFLOW_REPO}:${MLFLOW_VERSION} --build-arg MLFLOW_VERSION="$(MLFLOW_VERSION)" --platform linux/amd64,linux/arm64 --push
