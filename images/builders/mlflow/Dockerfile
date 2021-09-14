@@ -12,10 +12,13 @@ WORKDIR /workspace
 
 RUN apk add --no-cache ca-certificates jq curl unzip
 
-RUN curl -LO https://github.com/mayflower/docker-ls/releases/latest/download/docker-ls-linux-amd64.zip \
-  && unzip docker-ls-linux-amd64.zip -d /usr/local/bin \
-  && rm docker-ls-linux-amd64.zip \
-  && apk del curl unzip \
+RUN export ARCH="$(uname -m)" \
+  && export OS=$(uname|tr '[:upper:]' '[:lower:]') \
+  && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; fi \
+  && if [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm"; fi \
+  && curl -LO https://github.com/mayflower/docker-ls/releases/latest/download/docker-ls-${OS}-${ARCH}.zip \
+  && unzip docker-ls-${OS}-${ARCH}.zip -d /usr/local/bin \
+  && rm docker-ls-${OS}-${ARCH}.zip \
   && rm -rf /var/spool
 
 ENV MLFLOW_DOCKERFILE=/fuseml-mlflow
