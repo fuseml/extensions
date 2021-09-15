@@ -27,3 +27,9 @@ services:
     resource: kfserving-ui
     category: UI
     description: KFServing UI
+gateways:
+  - name: kfserving-models-web-app
+    namespace: kfserving-system
+    servicehost: kfserving-models-web-app
+    port: 80
+
