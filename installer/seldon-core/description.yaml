@@ -1,0 +1,24 @@
+name: seldon-core
+product: seldon-core
+version: "1.10.0"
+description: |
+  An MLOps framework to package, deploy, monitor and manage thousands of production machine learning models
+namespace: seldon-system
+install:
+  - type: helm
+    chart: seldon-core-operator
+    repo: https://storage.googleapis.com/seldon-charts
+    values: values.yaml
+    waitfor:
+      - kind: deployment
+        selector: control-plane=seldon-controller-manager
+        namespace: seldon-system
+        condition: available
+        timeout: 600
+uninstall:
+  - type: helm
+gateways:
+  - name: seldon
+    namespace: fuseml-workloads
+    hostprefix: "*.seldon"
+    port: 80

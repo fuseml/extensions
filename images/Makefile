@@ -3,6 +3,7 @@ REGISTRY ?= registry.hub.docker.com/library
 
 MLFLOW_BUILDER_REPO ?= mlflow-builder
 KFSERVING_PREDICTOR_REPO ?= kfserving-predictor
+SELDON_PREDICTOR_REPO ?= seldon-core-predictor
 MLFLOW_REPO ?= mlflow
 MLFLOW_VERSION ?= 1.19.0
 
@@ -32,6 +33,7 @@ docker-release: docker-release-extensions docker-release-mlflow
 docker-build-extensions:
 	docker build ./builders/mlflow -t ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG}
 	docker build ./inference-services/kfserving -t ${REGISTRY}/${KFSERVING_PREDICTOR_REPO}:${IMAGE_TAG}
+	docker build ./inference-services/seldon-core -t ${REGISTRY}/${SELDON_PREDICTOR_REPO}:${IMAGE_TAG}
 
 # Build the docker image for the MLFlow tracking service
 docker-build-mlflow:
@@ -41,6 +43,7 @@ docker-build-mlflow:
 docker-push-extensions:
 	docker push ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG}
 	docker push ${REGISTRY}/${KFSERVING_PREDICTOR_REPO}:${IMAGE_TAG}
+	docker push ${REGISTRY}/${SELDON_PREDICTOR_REPO}:${IMAGE_TAG}
 
 # Push the docker image for the MLFlow tracking service
 docker-push-mlflow:
@@ -50,6 +53,7 @@ docker-push-mlflow:
 docker-release-extensions:
 	docker buildx build ./builders/mlflow -t ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
 	docker buildx build ./inference-services/kfserving -t ${REGISTRY}/${KFSERVING_PREDICTOR_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
+	docker buildx build ./inference-services/seldon-core -t ${REGISTRY}/${SELDON_PREDICTOR_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
 
 # Build and release multi-arch docker images for workflow extensions
 docker-release-mlflow:
