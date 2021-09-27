@@ -50,7 +50,7 @@ envsubst < /root/template.sh | kubectl apply -f -
 
 # rollout fails if the object does not exist yet, so we need to wait until it is created
 count=0
-until kubectl get deploy -l seldon-deployment-id=${sd} -n ${FUSEML_ENV_WORKFLOW_NAMESPACE}; do
+until [[ $(kubectl get deploy -l seldon-deployment-id=${sd} -n ${FUSEML_ENV_WORKFLOW_NAMESPACE} 2>/dev/null) ]]; do
   count=$((count + 1))
   if [[ ${count} -eq "30" ]]; then
     echo "Timed out waiting for Deployment to exist"
