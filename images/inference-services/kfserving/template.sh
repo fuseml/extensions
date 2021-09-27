@@ -34,6 +34,7 @@ spec:
       protocolVersion: ${PROTOCOL_VERSION}
       runtimeVersion: ${RUNTIME_VERSION}
       storageUri: "${FUSEML_MODEL}"
+      args: ${ARGS}
       resources:
         limits:
           cpu: 1000m
