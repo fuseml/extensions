@@ -1,5 +1,6 @@
 #!/bin/sh
 
+set -e
 set -o pipefail
 
 # generates a checksum based on the contents of a conda.yaml file
