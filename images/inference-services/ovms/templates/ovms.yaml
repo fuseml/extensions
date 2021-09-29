@@ -1,0 +1,40 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: intel.com/v1alpha1
+kind: Ovms
+metadata:
+  namespace: #@ data.values.namespace
+  name: #@ "ovms-{}".format(data.values.name_suffix)
+  #@ if/end data.values.labels:
+  labels: #@ data.values.labels
+spec:
+  aws_access_key_id: #@ data.values.aws_access_key_id
+  aws_region: #@ data.values.aws_region
+  aws_secret_access_key: #@ data.values.aws_secret_access_key
+  s3_compat_api_endpoint: #@ data.values.s3_compat_api_endpoint
+  config_configmap_name: #@ data.values.config_configmap_name
+  gcp_creds_secret_name: #@ data.values.gcp_creds_secret_name
+  grpc_port: #@ data.values.grpc_port
+  rest_port: #@ data.values.rest_port
+  image_name: #@ "openvino/model_server:{}".format(data.values.ovms_image_tag)
+  log_level: #@ data.values.log_level
+  model_name: #@ data.values.model_name
+  model_path: #@ data.values.model_path
+  models_host_path: #@ data.values.models_host_path
+  models_volume_claim: #@ data.values.models_volume_claim
+  nireq: #@ data.values.nireq
+  plugin_config: #@ data.values.plugin_config
+  batch_size: #@ data.values.batch_size
+  shape: #@ data.values.shape
+  model_version_policy: #@ data.values.model_version_policy
+  file_system_poll_wait_seconds: #@ data.values.file_system_poll_wait_seconds
+  replicas: #@ data.values.replicas
+  #@ if/end data.values.resources:
+  resources: #@ data.values.resources
+  annotations: {}
+  node_selector: {}
+  security_context: {}
+  service_type: ClusterIP
+  target_device: CPU
+  https_proxy: ""
+  

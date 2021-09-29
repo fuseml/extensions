@@ -52,7 +52,7 @@ register_fuseml_app() {
     "url": "$url",
     "workflow": "$FUSEML_ENV_WORKFLOW_NAME",
     "k8s_namespace": "$FUSEML_ENV_WORKFLOW_NAMESPACE",
-    "k8s_resources": "$k8s_resources"
+    "k8s_resources": $k8s_resources
 }
 EOF
 )

@@ -1,0 +1,21 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  namespace: #@ data.values.namespace
+  name: #@ "ovms-{}".format(data.values.name_suffix)
+spec:
+  gateways:
+    - #@ data.values.istio_gateway
+  hosts:
+    - #@ data.values.istio_host
+  http:
+    - match:
+      - uri:
+          prefix: /
+      route:
+      - destination:
+          host: #@ "ovms-{}".format(data.values.name_suffix)
+          port:
+            number: #@ data.values.rest_port
