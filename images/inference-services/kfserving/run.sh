@@ -71,14 +71,32 @@ case $PREDICTOR in
                 model_file="$(echo ${mlmodel} | awk '/data:/ { print $2; exit }')"
                 mc cp -r "${model_bucket}"/"${model_file}" "${model_bucket}"/triton/"${isvc}"/1/
             else
-                echo "ERROR: Only tensorflow 'saved model' nad ONNX format is supported"
+                echo "ERROR: Only tensorflow 'SavedModel' and ONNX formats are supported"
                 exit 1
             fi
         fi
 esac
 
+RESOURCES_LIMITS="{cpu: 1000m, memory: 2Gi}"
+# set inference service container resources if specified
+if [ -n "${FUSEML_RESOURCES_LIMITS+x}" ]; then
+    RESOURCES_LIMITS="${FUSEML_RESOURCES_LIMITS}"
+fi
+export RESOURCES_LIMITS
+
+new_ifs=true
+if kubectl get inferenceservice/${isvc} > /dev/null 2>&1; then
+    new_ifs=false
+fi
+
 envsubst < /root/template.sh | kubectl apply -f -
 
+# if the inference service already exists, wait for its status to be updated
+# with the new deployment (eventually it will transition to not Ready as it is
+# waiting for the new deployment to be ready)
+if [ "${new_ifs}" = false ] ; then
+    kubectl wait --for=condition=Ready=false --timeout=30s inferenceservice/${isvc} || true
+fi
 
 kubectl wait --for=condition=Ready --timeout=600s inferenceservice/${isvc}
 prediction_url="$(kubectl get inferenceservice/${isvc} -o jsonpath='{.status.url}')/${PROTOCOL_VERSION}/models/${prediction_url_path}"

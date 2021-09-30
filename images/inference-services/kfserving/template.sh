@@ -36,9 +36,7 @@ spec:
       storageUri: "${FUSEML_MODEL}"
       args: ${ARGS}
       resources:
-        limits:
-          cpu: 1000m
-          memory: 2Gi
+        limits: ${RESOURCES_LIMITS}
         requests:
           cpu: 100m
           memory: 128Mi
