@@ -1,6 +1,6 @@
 name: seldon-core
 product: seldon-core
-version: "1.10.0"
+version: "1.11.0"
 description: |
   An MLOps framework to package, deploy, monitor and manage thousands of production machine learning models
 namespace: seldon-system
@@ -9,6 +9,7 @@ install:
     chart: seldon-core-operator
     repo: https://storage.googleapis.com/seldon-charts
     values: values.yaml
+    version: "1.11.0"
     waitfor:
       - kind: deployment
         selector: control-plane=seldon-controller-manager
