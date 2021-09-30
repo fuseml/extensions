@@ -35,12 +35,22 @@ case $PREDICTOR in
         if ! mc ls ${model_bucket} | grep -q "model.joblib"; then
             mc cp ${model_bucket}/model.pkl ${model_bucket}/model.joblib
         fi
-        export PREDICTOR_SERVER="SKLEARN_SERVER"
         prediction_url_path="${sd}/api/v1.0/predictions"
+        #TODO parametrize prediction method in workflow
+        export PREDICTOR_SERVER="SKLEARN_SERVER"
+        export PARAMETERS="[{ name: method, type: STRING, value: predict}]"
+        export PROTOCOL=seldon
+        ;;
+    tensorflow)
+        if [ "$(mc find ${model_bucket} --name 1)" = "" ]; then
+            mc cp -r ${model_bucket}/tfmodel/ ${model_bucket}/1
+        fi
+        # 'classifier' comes from spec.predictors.graph.name
+        prediction_url_path="${sd}/v1/models/classifier:predict"
+        export PREDICTOR_SERVER="TENSORFLOW_SERVER"
+        export PROTOCOL=tensorflow
         ;;
 esac
-
-#TODO parametrize prediction method
 
 # Gateway has host info in the form of '*.seldon.172.18.0.2.nip.io' so we need to add a prefix
 domain=$(kubectl get Gateway seldon-gateway -n ${FUSEML_ENV_WORKFLOW_NAMESPACE} -o jsonpath='{.spec.servers[0].hosts[0]}')
