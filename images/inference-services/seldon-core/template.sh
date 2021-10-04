@@ -35,6 +35,7 @@ metadata:
     "seldon.io/istio-gateway": "${FUSEML_ENV_WORKFLOW_NAMESPACE}/seldon-gateway"
 spec:
   name: "${ORG}-${PROJECT}"
+  protocol: "${PROTOCOL}"
   predictors:
     - name: "predictor"
       labels:
@@ -49,10 +50,7 @@ spec:
         envSecretRefName: "${ORG}-${PROJECT}-init-container-secret"
         name: classifier
         serviceAccountName: "${ORG}-${PROJECT}-seldon"
-        parameters:
-          - name: method
-            type: STRING
-            value: predict
+        parameters: ${PARAMETERS}
       componentSpecs:
         - spec:
             containers:
