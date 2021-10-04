@@ -2,6 +2,7 @@
 REGISTRY ?= registry.hub.docker.com/library
 
 MLFLOW_BUILDER_REPO ?= mlflow-builder
+BASE_PREDICTOR_REPO ?= base-predictor
 KFSERVING_PREDICTOR_REPO ?= kfserving-predictor
 SELDON_PREDICTOR_REPO ?= seldon-core-predictor
 MLFLOW_REPO ?= mlflow
@@ -31,6 +32,7 @@ docker-release: docker-release-extensions docker-release-mlflow
 
 # Build the docker images for workflow extensions
 docker-build-extensions:
+	docker build ./inference-services/base -t ${REGISTRY}/${BASE_PREDICTOR_REPO}:${IMAGE_TAG}
 	docker build ./builders/mlflow -t ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG}
 	docker build ./inference-services/kfserving -t ${REGISTRY}/${KFSERVING_PREDICTOR_REPO}:${IMAGE_TAG}
 	docker build ./inference-services/seldon-core -t ${REGISTRY}/${SELDON_PREDICTOR_REPO}:${IMAGE_TAG}
@@ -41,6 +43,7 @@ docker-build-mlflow:
 
 # Push the docker images for workflow extensions
 docker-push-extensions:
+	docker push ${REGISTRY}/${BASE_PREDICTOR_REPO}:${IMAGE_TAG}
 	docker push ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG}
 	docker push ${REGISTRY}/${KFSERVING_PREDICTOR_REPO}:${IMAGE_TAG}
 	docker push ${REGISTRY}/${SELDON_PREDICTOR_REPO}:${IMAGE_TAG}
@@ -51,6 +54,7 @@ docker-push-mlflow:
 
 # Build and release multi-arch docker images for workflow extensions
 docker-release-extensions:
+	docker buildx build ./inference-services/base -t ${REGISTRY}/${BASE_PREDICTOR_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
 	docker buildx build ./builders/mlflow -t ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
 	docker buildx build ./inference-services/kfserving -t ${REGISTRY}/${KFSERVING_PREDICTOR_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
 	docker buildx build ./inference-services/seldon-core -t ${REGISTRY}/${SELDON_PREDICTOR_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
