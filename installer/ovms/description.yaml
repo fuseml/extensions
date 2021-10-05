@@ -30,3 +30,30 @@ gateways:
     namespace: fuseml-workloads
     hostprefix: "*.ovms"
     port: 80
+rolerules:
+  - apigroups:
+      - intel.com
+    resources:
+      - ovms
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - watch
+  - apigroups:
+      - networking.istio.io
+    resources:
+      - gateways
+    verbs:
+      - get
+  - apigroups:
+      - networking.istio.io
+    resources:
+      - virtualservices
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - watch

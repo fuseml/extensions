@@ -23,3 +23,20 @@ gateways:
     namespace: fuseml-workloads
     hostprefix: "*.seldon"
     port: 80
+rolerules:
+  - apigroups:
+      - machinelearning.seldon.io
+    resources:
+      - seldondeployments
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - watch
+  - apigroups:
+      - networking.istio.io
+    resources:
+      - gateways
+    verbs:
+      - get
