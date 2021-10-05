@@ -6,6 +6,7 @@ BASE_PREDICTOR_REPO ?= base-predictor
 KFSERVING_PREDICTOR_REPO ?= kfserving-predictor
 SELDON_PREDICTOR_REPO ?= seldon-core-predictor
 OVMS_PREDICTOR_REPO ?= ovms-predictor
+OVMS_CONVERTER_REPO ?= ovms-converter
 MLFLOW_REPO ?= mlflow
 MLFLOW_VERSION ?= 1.19.0
 
@@ -48,11 +49,15 @@ docker-build-predictor-seldon:
 docker-build-predictor-ovms: docker-build-predictor-base
 	docker build ./inference-services/ovms -t ${REGISTRY}/${OVMS_PREDICTOR_REPO}:${IMAGE_TAG} --build-arg BASE_PREDICTOR_IMAGE=${BASE_PREDICTOR_IMAGE}
 
+docker-build-converter-ovms:
+	docker build ./converters/ovms -t ${REGISTRY}/${OVMS_CONVERTER_REPO}:${IMAGE_TAG}
+
 # Build the docker images for workflow extensions
 docker-build-extensions: docker-build-builder-mlflow \
                          docker-build-predictor-kfserving \
                          docker-build-predictor-seldon \
-                         docker-build-predictor-ovms
+                         docker-build-predictor-ovms \
+                         docker-build-converter-ovms
 
 # Build the docker image for the MLFlow tracking service
 docker-build-mlflow:
@@ -73,12 +78,16 @@ docker-push-predictor-seldon: docker-build-predictor-seldon
 docker-push-predictor-ovms: docker-build-predictor-ovms
 	docker push ${REGISTRY}/${OVMS_PREDICTOR_REPO}:${IMAGE_TAG}
 
+docker-push-converter-ovms: docker-build-converter-ovms
+	docker push ${REGISTRY}/${OVMS_CONVERTER_REPO}:${IMAGE_TAG}
+
 # Build and push the docker images for workflow extensions
 docker-push-extensions: docker-push-builder-mlflow \
                         docker-push-predictor-base \
                         docker-push-predictor-kfserving \
                         docker-push-predictor-seldon \
-                        docker-push-predictor-ovms
+                        docker-push-predictor-ovms \
+                        docker-push-converter-ovms
 
 # Build and push the docker image for the MLFlow tracking service
 docker-push-mlflow: docker-build-mlflow
@@ -96,15 +105,19 @@ docker-release-predictor-kfserving:
 docker-release-predictor-seldon:
 	docker buildx build ./inference-services/seldon-core -t ${REGISTRY}/${SELDON_PREDICTOR_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
 
-docker-release-predictor-ovms: docker-build-predictor-base
+docker-release-predictor-ovms: docker-release-predictor-base
 	docker buildx build ./inference-services/ovms -t ${REGISTRY}/${OVMS_PREDICTOR_REPO}:${IMAGE_TAG} --build-arg BASE_PREDICTOR_IMAGE=${BASE_PREDICTOR_IMAGE} --platform linux/amd64,linux/arm64 --push
+
+docker-release-converter-ovms:
+	docker buildx build ./converters/ovms -t ${REGISTRY}/${OVMS_CONVERTER_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
 
 # Build and release multi-arch docker images for workflow extensions
 docker-release-extensions: docker-release-builder-mlflow \
                            docker-release-predictor-base \
                            docker-release-predictor-kfserving \
                            docker-release-predictor-seldon \
-                           docker-release-predictor-ovms
+                           docker-release-predictor-ovms \
+                           docker-release-converter-ovms
 
 # Build and release multi-arch docker images for workflow extensions
 docker-release-mlflow:
