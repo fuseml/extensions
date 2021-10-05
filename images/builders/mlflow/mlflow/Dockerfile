@@ -1,12 +1,11 @@
-FROM continuumio/miniconda3:4.10.3-alpine
+FROM continuumio/miniconda3:4.10.3
 
 COPY conda.yaml /env/
 
 ENV PIP_NO_CACHE_DIR=off
 ENV BASH_ENV /root/.bashrc
 
-RUN apk add -q --no-cache git && \
-  env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
+RUN env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
   printf ". /opt/conda/etc/profile.d/conda.sh\nconda activate ${env}" > /root/.bashrc && \
   conda env create -f /env/conda.yaml && \
   conda install -n ${env} boto3 && \
