@@ -28,7 +28,7 @@ if [ "${PREDICTOR}" = "auto" ]; then
     fi
 
     PREDICTOR=$(mc cat "${model_bucket}"/MLmodel | awk -F '.' '/loader_module:/ {print $2}')
-    if [ "${PREDICTOR}" = "onnx" ]; then
+    if [[ "${PREDICTOR}" =~ "^(onnx|keras)$" ]]; then
         PREDICTOR="triton"
     fi
 fi
@@ -59,21 +59,30 @@ case $PREDICTOR in
         # triton supports multiple serving backends, each has its own directory
         # structure (see: https://github.com/triton-inference-server/server/blob/main/docs/model_repository.md).
         export PROTOCOL_VERSION="v2"
-        export RUNTIME_VERSION="21.08-py3"
+        export RUNTIME_VERSION="21.09-py3"
         export ARGS="[--strict-model-config=false]"
         export FUSEML_MODEL="${FUSEML_MODEL}/triton"
         prediction_url_path="${isvc}/infer"
         if [ "$(mc find ${model_bucket} --name triton)" = "" ]; then
-            mlmodel="$(mc cat ${model_bucket}/MLmodel)"
-            if echo "${mlmodel}" | grep -q saved_model; then
-                mc cp -r "${model_bucket}"/tfmodel/ "${model_bucket}"/triton/"${isvc}"/1/model.savedmodel
-            elif echo "${mlmodel}" | grep -q onnx; then
-                model_file="$(echo ${mlmodel} | awk '/data:/ { print $2; exit }')"
-                mc cp -r "${model_bucket}"/"${model_file}" "${model_bucket}"/triton/"${isvc}"/1/
-            else
-                echo "ERROR: Only tensorflow 'SavedModel' and ONNX formats are supported"
-                exit 1
-            fi
+            mlmodel=$(mc cat "${model_bucket}"/MLmodel)
+            flavor="$(echo "${mlmodel}" | grep -E -o '^\s{2}([a-z].*[a-z])' | grep -v python_function | tr -d ' ')"
+            case ${flavor} in
+                tensorflow)
+                    mc cp -r "${model_bucket}"/tfmodel/ "${model_bucket}"/triton/"${isvc}"/1/model.savedmodel
+                    ;;
+                keras)
+                    mc cp -r "${model_bucket}"/data/model/ "${model_bucket}"/triton/"${isvc}"/1/model.savedmodel
+                    ;;
+                onnx)
+                    model_file="$(echo "${mlmodel}" | awk '/data:/ { print $2; exit }')"
+                    mc cp -r "${model_bucket}"/"${model_file}" "${model_bucket}"/triton/"${isvc}"/1/
+                    ;;
+                *)
+                    echo "Unsupported: ${flavor}"
+                    echo "ERROR: Only Tensorflow/Keras (SavedModel) and ONNX formats are supported"
+                    exit 1
+                    ;;
+            esac
         fi
 esac
 
