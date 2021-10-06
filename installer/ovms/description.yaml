@@ -1,0 +1,32 @@
+name: ovms
+product: openvino-model-server
+version: "0.1.0"
+description: |
+  OpenVINO Model Server Kubernetes Operator
+install:
+  - type: kustomize
+    location: kustomize
+    waitfor:
+      - namespace: ovms-operator-system
+        selector: all
+      - kind: deployment
+        selector: control-plane=controller-manager
+        namespace: ovms-operator-system
+        condition: available
+        timeout: 600
+uninstall:
+  - type: kustomize
+    location: kustomize
+services:
+  - id: API
+    resource: ovms-operator
+    category: prediction-serving
+    description: OpenVINO Model Server Kubernetes Operator API
+    endpoints:
+      - url: http://kubernetes.default.svc
+        type: internal
+gateways:
+  - name: ovms
+    namespace: fuseml-workloads
+    hostprefix: "*.ovms"
+    port: 80
