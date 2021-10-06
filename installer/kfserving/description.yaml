@@ -32,4 +32,14 @@ gateways:
     namespace: kfserving-system
     servicehost: kfserving-models-web-app
     port: 80
-
+rolerules:
+  - apigroups:
+      - serving.kubeflow.org
+    resources:
+      - inferenceservices
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - watch
