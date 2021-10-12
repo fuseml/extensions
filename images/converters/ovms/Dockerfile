@@ -21,6 +21,10 @@ COPY --from=builder /usr/local/bin/mc /usr/local/bin/mc
 COPY --from=builder /usr/bin/jq /usr/local/bin/jq
 COPY --from=builder /usr/local/bin/yq /usr/local/bin/yq
 
+RUN apt-get update \
+  && apt-get install -y wget \
+  && apt-get clean
+
 COPY run.sh /usr/local/bin/run
 
 RUN mkdir -p /opt/fuseml/workspace \
@@ -31,9 +35,10 @@ USER openvino
 ENV AWS_ACCESS_KEY_ID ""
 ENV AWS_SECRET_ACCESS_KEY ""
 ENV S3_ENDPOINT "https://s3.amazonaws.com"
-ENV FUSEML_MODEL ""
-ENV FUSEML_MODEL_FORMAT "auto"
-ENV FUSEML_INPUT_SHAPE ""
+ENV FUSEML_INPUT_MODEL ""
+ENV FUSEML_INPUT_FORMAT "auto"
+ENV FUSEML_OUTPUT_MODEL ""
+ENV FUSEML_OUTPUT_FORMAT "openvino"
 
 
 CMD [ "run" ]

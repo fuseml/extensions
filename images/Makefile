@@ -109,7 +109,7 @@ docker-release-predictor-ovms: docker-release-predictor-base
 	docker buildx build ./inference-services/ovms -t ${REGISTRY}/${OVMS_PREDICTOR_REPO}:${IMAGE_TAG} --build-arg BASE_PREDICTOR_IMAGE=${BASE_PREDICTOR_IMAGE} --platform linux/amd64,linux/arm64 --push
 
 docker-release-converter-ovms:
-	docker buildx build ./converters/ovms -t ${REGISTRY}/${OVMS_CONVERTER_REPO}:${IMAGE_TAG} --platform linux/amd64,linux/arm64 --push
+	docker buildx build ./converters/ovms -t ${REGISTRY}/${OVMS_CONVERTER_REPO}:${IMAGE_TAG} --platform linux/amd64 --push
 
 # Build and release multi-arch docker images for workflow extensions
 docker-release-extensions: docker-release-builder-mlflow \
