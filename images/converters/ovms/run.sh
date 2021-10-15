@@ -21,11 +21,13 @@
 #   local path
 #   HTTP/HTTPs remote location
 #   S3 storage
+#   GCS storage
 #
 # Supported output model storage types:
 #
 #   local path
 #   S3 storage
+#   GCS storage
 #
 # This converter workflow step is implemented in 3 stages, some of which won't
 # need to be executed, depending on the use-case:
@@ -44,6 +46,13 @@
 set -ex
 set -u
 set -o pipefail
+
+# unless explicitly set, use the same remote S3/GCS output credentials as the input
+if [ -z "$OUTPUT_S3_ENDPOINT" ] && [ -z "$OUTPUT_AWS_ACCESS_KEY_ID" ] && [ -z "$OUTPUT_AWS_SECRET_ACCESS_KEY" ]; then
+    OUTPUT_S3_ENDPOINT=$S3_ENDPOINT
+    OUTPUT_AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+    OUTPUT_AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+fi
 
 fuseml_workspace=/opt/fuseml/workspace
 input_format=${FUSEML_INPUT_FORMAT}
@@ -83,8 +92,20 @@ elif [[ "${input_model}" =~ ^https?://.* ]]; then
 # download the model locally, if stored in an S3 bucket
 elif [[ "${input_model}" = "s3://"* ]]; then
     echo "Dowloading model from S3 remote storage: ${input_model} ..."
+
+    # default to AWS storage, unless the S3 endpoint is explicitly set to something else (e.g. minio)
+    : "${S3_ENDPOINT:=https://s3.amazonaws.com}"
+
     mc alias set s3 "${S3_ENDPOINT}" "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}"
     model_bucket="s3${input_model//s3:\//}"
+    mc cp -r "${model_bucket}" "${input_model_base_path}"
+    input_model=${input_model_base_path}/$(basename "${input_model}")
+
+# download the model locally, if stored in GCS bucket
+elif [[ "${input_model}" = "gs://"* ]]; then
+    echo "Dowloading model from GCS storage: ${input_model} ..."
+    mc alias set gs https://storage.googleapis.com "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}"
+    model_bucket="gs${input_model//gs:\//}"
     mc cp -r "${model_bucket}" "${input_model_base_path}"
     input_model=${input_model_base_path}/$(basename "${input_model}")
 else
@@ -185,9 +206,17 @@ if [[ "${output_model}" =~ ^/.* ]]; then
 # upload the model remotely, if stored in an S3 bucket
 elif [[ "${output_model}" = "s3://"* ]]; then
     echo "Uploading model to S3 remote storage: ${output_model} ..."
-    mc alias set s3 "${S3_ENDPOINT}" "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}"
+    mc alias set s3 "${OUTPUT_S3_ENDPOINT}" "${OUTPUT_AWS_ACCESS_KEY_ID}" "${OUTPUT_AWS_SECRET_ACCESS_KEY}"
     model_bucket="s3${output_model//s3:\//}"
     mc cp -r "${output_model_path}" "${model_bucket}"
+
+# upload the model remotely, if stored in GCS
+elif [[ "${output_model}" = "gs://"* ]]; then
+    echo "Uploading model to GCS remote storage: ${output_model} ..."
+    mc alias set gs https://storage.googleapis.com "${OUTPUT_AWS_ACCESS_KEY_ID}" "${OUTPUT_AWS_SECRET_ACCESS_KEY}"
+    model_bucket="gs${output_model//gs:\//}"
+    mc cp -r "${output_model_path}" "${model_bucket}"
+
 else
     echo "Unsupported output storage type: ${output_model}"
     exit 1
