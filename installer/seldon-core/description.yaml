@@ -18,6 +18,14 @@ install:
         timeout: 600
 uninstall:
   - type: helm
+services:
+  - id: API
+    resource: seldon-core-api
+    category: prediction-serving
+    description: Seldon Core prediction service API
+    endpoints:
+      - url: http://kubernetes.default.svc
+        type: internal
 gateways:
   - name: seldon
     namespace: fuseml-workloads
