@@ -8,7 +8,7 @@ install:
     location: kustomize
     waitfor:
       - namespace: ovms-operator-system
-        selector: all
+        selector: control-plane=controller-manager
       - kind: deployment
         selector: control-plane=controller-manager
         namespace: ovms-operator-system
