@@ -11,7 +11,9 @@ install:
     location: kustomize
     waitfor:
       - namespace: kfserving-system
-        selector: all
+        selector: control-plane=kfserving-controller-manager
+      - namespace: kfserving-system
+        selector: app.kubernetes.io/component=kfserving-models-web-app
 uninstall:
   - type: kustomize
     location: kustomize
