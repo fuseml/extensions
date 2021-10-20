@@ -9,6 +9,7 @@ ENV S3_ENDPOINT ""
 ENV FUSEML_MODEL ""
 ENV FUSEML_MODEL_NAME default
 ENV FUSEML_OVMS_IMAGE_TAG "2021.4.1"
+ENV FUSEML_PREDICTION_TYPE "predict"
 
 RUN mkdir /opt/openvino/
 COPY run.sh /usr/local/bin/run

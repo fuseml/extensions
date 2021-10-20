@@ -80,7 +80,7 @@ kubectl wait --for=condition=Available=true --timeout=30s \
   "deploy/ovms-${APP_NAME}" -n "${FUSEML_ENV_WORKFLOW_NAMESPACE}"
 kubectl rollout status "deploy/ovms-${APP_NAME}" -n "${FUSEML_ENV_WORKFLOW_NAMESPACE}" --timeout=2m
 
-prediction_url="http://${ISTIO_HOST}/v1/models/${FUSEML_MODEL_NAME}"
+prediction_url="http://${ISTIO_HOST}/v1/models/${FUSEML_MODEL_NAME}:${FUSEML_PREDICTION_TYPE}"
 
 echo "${prediction_url}" > "/tekton/results/${TASK_RESULT}"
 
