@@ -7,7 +7,6 @@ set -o pipefail
 get_tag() {
     file=${1:-"conda.yaml"}
     dep_provider=""
-
     while IFS= read -r line; do
         name=$(echo ${line} | sed 's/ *- //g')
         case $line in
@@ -31,11 +30,21 @@ get_tag() {
     printf "$(cat /build-timestamp.txt)$dependencies" | sort | cksum | cut -f 1 -d ' '
 }
 
-conda_file="conda.yaml"
 
-if [ ! -f "${conda_file}" ]; then
-    echo "${conda_file} not found in $(pwd)"
-    exit 1
+if [ ! -f "conda.yaml" ]; then
+    if [ ! -f "requirements.txt" ]; then
+        echo "Neither conda.yaml not requirements.txt found in $(pwd)"
+        exit 1
+    fi
+    # prepare conda.yaml based on existing requirements.txt
+    cat > conda.yaml << EOF
+name: mlflow
+dependencies:
+  - pip
+  - pip:
+$(cat requirements.txt | sed 's/^/    - /')
+EOF
+
 fi
 
 registry=${FUSEML_REGISTRY:-"registry.fuseml-registry"}
@@ -53,7 +62,11 @@ else
     mkdir -p .fuseml
     cp -r ${MLFLOW_DOCKERFILE}/* .fuseml/
 
-    /kaniko/executor --insecure --dockerfile=.fuseml/Dockerfile  --context=./ --destination=${registry}/${repository}:${tag}
+    if [ -n "${FUSEML_MINICONDA_VERSION}" ]; then
+        BUILDARGS="$BUILDARGS --build-arg MINICONDA_VERSION=$FUSEML_MINICONDA_VERSION"
+    fi
+
+    /kaniko/executor --insecure --dockerfile=.fuseml/Dockerfile  --context=./ --destination=${registry}/${repository}:${tag} $BUILDARGS
 fi
 
 printf ${destination} > /tekton/results/${TASK_RESULT}
