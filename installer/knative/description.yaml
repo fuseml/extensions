@@ -12,7 +12,7 @@ install:
     namespace: knative-serving
     waitfor:
       - namespace: knative-serving
-        selector: all
+        selector: serving.knative.dev/release=v0.24.0
   - type: manifest
     location: https://github.com/knative-sandbox/net-istio/releases/download/v0.24.0/release.yaml
     waitfor:
