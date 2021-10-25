@@ -1,4 +1,7 @@
-FROM continuumio/miniconda3:4.10.3
+ARG MINICONDA_VERSION=4.10.3
+ARG BASE_IMAGE=continuumio/miniconda3:${MINICONDA_VERSION}
+
+FROM ${BASE_IMAGE}
 
 COPY conda.yaml /env/
 
@@ -18,4 +21,3 @@ COPY .fuseml/run.sh /usr/local/bin/run
 WORKDIR /workspace
 
 CMD [ "run" ]
-
