@@ -2,6 +2,7 @@
 
 set -e
 set -o pipefail
+set -x
 
 # generates a checksum based on the contents of a conda.yaml file
 get_tag() {
@@ -64,6 +65,12 @@ else
 
     if [ -n "${FUSEML_MINICONDA_VERSION}" ]; then
         BUILDARGS="$BUILDARGS --build-arg MINICONDA_VERSION=$FUSEML_MINICONDA_VERSION"
+    fi
+    if [ -n "${FUSEML_INTEL_BASE_IMAGE}" ]; then
+        BUILDARGS="$BUILDARGS --build-arg INTEL_BASE_IMAGE=$FUSEML_INTEL_BASE_IMAGE"
+    fi
+    if [ -n "${FUSEML_INTEL_OPTIMIZED}" ]; then
+        BUILDARGS="$BUILDARGS --build-arg BASE=intel"
     fi
 
     /kaniko/executor --insecure --dockerfile=.fuseml/Dockerfile  --context=./ --destination=${registry}/${repository}:${tag} $BUILDARGS
