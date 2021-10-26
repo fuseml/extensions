@@ -4,6 +4,8 @@ set -e
 set -o pipefail
 set -x
 
+BUILDARGS=""
+
 # generates a checksum based on the contents of a conda.yaml file
 get_tag() {
     file=${1:-"conda.yaml"}
@@ -28,7 +30,7 @@ get_tag() {
     done <"${file}"
 
     # insert the date to allow new container image versions to invalidate previously built builder containers
-    printf "$(cat /build-timestamp.txt)$dependencies" | sort | cksum | cut -f 1 -d ' '
+    printf "$(cat /build-timestamp.txt)$dependencies$BUILDARGS" | sort | cksum | cut -f 1 -d ' '
 }
 
 
@@ -50,6 +52,17 @@ fi
 
 registry=${FUSEML_REGISTRY:-"registry.fuseml-registry"}
 repository=${FUSEML_REPOSITORY:-"mlflow/trainer"}
+
+if [ -n "${FUSEML_MINICONDA_VERSION}" ]; then
+    BUILDARGS="$BUILDARGS --build-arg MINICONDA_VERSION=$FUSEML_MINICONDA_VERSION"
+fi
+if [ -n "${FUSEML_INTEL_BASE_IMAGE}" ]; then
+    BUILDARGS="$BUILDARGS --build-arg INTEL_BASE_IMAGE=$FUSEML_INTEL_BASE_IMAGE"
+fi
+if [ -n "${FUSEML_INTEL_OPTIMIZED}" ]; then
+    BUILDARGS="$BUILDARGS --build-arg BASE=intel"
+fi
+
 tag=$(get_tag)
 
 # destination is the task output, when using the internal FuseML registry we need to reference the repository
@@ -62,16 +75,6 @@ else
     echo "${repository}:${tag} not found in ${registry}, building..."
     mkdir -p .fuseml
     cp -r ${MLFLOW_DOCKERFILE}/* .fuseml/
-
-    if [ -n "${FUSEML_MINICONDA_VERSION}" ]; then
-        BUILDARGS="$BUILDARGS --build-arg MINICONDA_VERSION=$FUSEML_MINICONDA_VERSION"
-    fi
-    if [ -n "${FUSEML_INTEL_BASE_IMAGE}" ]; then
-        BUILDARGS="$BUILDARGS --build-arg INTEL_BASE_IMAGE=$FUSEML_INTEL_BASE_IMAGE"
-    fi
-    if [ -n "${FUSEML_INTEL_OPTIMIZED}" ]; then
-        BUILDARGS="$BUILDARGS --build-arg BASE=intel"
-    fi
 
     /kaniko/executor --insecure --dockerfile=.fuseml/Dockerfile  --context=./ --destination=${registry}/${repository}:${tag} $BUILDARGS
 fi
