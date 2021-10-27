@@ -21,6 +21,7 @@ model_bucket="minio${FUSEML_MODEL//s3:\//}"
 
 export PROTOCOL_VERSION="v1"
 export PREDICTOR=${FUSEML_PREDICTOR}
+export RUNTIME_VERSION=${FUSEML_RUNTIME_VERSION}
 if [ "${PREDICTOR}" = "auto" ]; then
     if ! mc stat "${model_bucket}"/MLmodel &> /dev/null ; then
         echo "No MLmodel found, cannot auto detect predictor"
@@ -42,7 +43,9 @@ case $PREDICTOR in
         if [ "$(mc find ${model_bucket} --name 1)" = "" ]; then
             mc cp -r "${model_bucket}"/tfmodel/ "${model_bucket}"/1
         fi
-        export RUNTIME_VERSION=$(mc cat "${model_bucket}"/requirements.txt | awk -F '=' '/tensorflow/ {print $3}')
+        if [ -z "${RUNTIME_VERSION}" ]; then
+            export RUNTIME_VERSION=$(mc cat "${model_bucket}"/requirements.txt | awk -F '=' '/tensorflow/ {print $3; exit}')
+        fi
         prediction_url_path="${isvc}:predict"
         ;;
     # kfserving expects the sklearn model file as model.joblib however mlflow
@@ -59,7 +62,9 @@ case $PREDICTOR in
         # triton supports multiple serving backends, each has its own directory
         # structure (see: https://github.com/triton-inference-server/server/blob/main/docs/model_repository.md).
         export PROTOCOL_VERSION="v2"
-        export RUNTIME_VERSION="21.09-py3"
+        if [ -z "${RUNTIME_VERSION}" ]; then
+            export RUNTIME_VERSION="21.09-py3"
+        fi
         export ARGS="[--strict-model-config=false]"
         export FUSEML_MODEL="${FUSEML_MODEL}/triton"
         prediction_url_path="${isvc}/infer"
