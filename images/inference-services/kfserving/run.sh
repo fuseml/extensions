@@ -21,7 +21,7 @@ model_bucket="minio${FUSEML_MODEL//s3:\//}"
 
 export PROTOCOL_VERSION="v1"
 export PREDICTOR=${FUSEML_PREDICTOR}
-export RUNTIME_VERSION=${FUSEML_RUNTIME_VERSION}
+export RUNTIME_VERSION=${FUSEML_RUNTIME_VERSION:-}
 if [ "${PREDICTOR}" = "auto" ]; then
     if ! mc stat "${model_bucket}"/MLmodel &> /dev/null ; then
         echo "No MLmodel found, cannot auto detect predictor"
