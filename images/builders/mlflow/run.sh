@@ -40,11 +40,15 @@ repository=${FUSEML_REPOSITORY:-"mlflow/trainer"}
 if [ -n "${FUSEML_MINICONDA_VERSION}" ]; then
     BUILDARGS="$BUILDARGS --build-arg MINICONDA_VERSION=$FUSEML_MINICONDA_VERSION"
 fi
-if [ -n "${FUSEML_BASE_IMAGE}" ]; then
-    BUILDARGS="$BUILDARGS --build-arg BASE_IMAGE=$FUSEML_BASE_IMAGE"
-fi
 if [ -n "${FUSEML_INTEL_OPTIMIZED}" ]; then
-    BUILDARGS="$BUILDARGS --build-arg BASE=requirements"
+    BUILDARGS="$BUILDARGS --build-arg BASE=intel"
+fi
+if [ -n "${FUSEML_BASE_IMAGE}" ]; then
+    if [ -n "${FUSEML_INTEL_OPTIMIZED}" ]; then
+        BUILDARGS="$BUILDARGS --build-arg INTEL_BASE_IMAGE=$FUSEML_BASE_IMAGE"
+    else
+        BUILDARGS="$BUILDARGS --build-arg BASE_IMAGE=$FUSEML_BASE_IMAGE"
+    fi
 fi
 
 if [ ! -f "conda.yaml" ]; then
@@ -52,7 +56,9 @@ if [ ! -f "conda.yaml" ]; then
         echo "Neither conda.yaml not requirements.txt found in $(pwd)"
         exit 1
     fi
-    BUILDARGS="$BUILDARGS --build-arg BASE=requirements"
+    if [ -z "${FUSEML_INTEL_OPTIMIZED}" ]; then
+        BUILDARGS="$BUILDARGS --build-arg BASE=requirements"
+    fi
     # prepare conda.yaml based on existing requirements.txt
     # (this generated conda.yaml will only be used for tag generation not for the installation)
     cat > conda.yaml << EOF
