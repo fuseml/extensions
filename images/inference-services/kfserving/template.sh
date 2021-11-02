@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "${ORG}-${PROJECT}-storage"
+  name: "${isvc}-storage"
   annotations:
      serving.kubeflow.org/s3-endpoint: ${S3_ENDPOINT}
      serving.kubeflow.org/s3-usehttps: "0"
@@ -14,21 +14,22 @@ stringData:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: "${ORG}-${PROJECT}-kfserving"
+  name: "${isvc}-kfserving"
 secrets:
-  - name: "${ORG}-${PROJECT}-storage"
+  - name: "${isvc}-storage"
 ---
 apiVersion: "serving.kubeflow.org/v1beta1"
 kind: "InferenceService"
 metadata:
-  name: "${ORG}-${PROJECT}"
+  name: "${isvc}"
   labels:
     fuseml/app-name: "${PROJECT}"
     fuseml/org: "${ORG}"
-    fuseml/app-guid: "${ORG}.${PROJECT}"
+    fuseml/workflow: "${FUSEML_ENV_WORKFLOW_NAME}"
+    fuseml/app-guid: "${ORG}.${PROJECT}.${FUSEML_ENV_WORKFLOW_NAME}"
 spec:
   predictor:
-    serviceAccountName: "${ORG}-${PROJECT}-kfserving"
+    serviceAccountName: "${isvc}-kfserving"
     timeout: 60
     ${PREDICTOR}:
       protocolVersion: ${PROTOCOL_VERSION}

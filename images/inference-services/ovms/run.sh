@@ -24,7 +24,7 @@ OVMS_ISTIO_GATEWAY=ovms-gateway
 # host wildcard configured in the form of '*.<domain>'
 DOMAIN=$(kubectl get Gateway ${OVMS_ISTIO_GATEWAY} -n ${NAMESPACE} -o jsonpath='{.spec.servers[0].hosts[0]}')
 ISTIO_HOST="${ORG}.${PROJECT}${DOMAIN/\*/}"
-APP_NAME="${ORG}-${PROJECT}"
+APP_NAME="${ORG}-${PROJECT}-${FUSEML_ENV_WORKFLOW_NAME}"
 
 cat << EOF > /opt/openvino/templates/values.yaml
 #@data/values
