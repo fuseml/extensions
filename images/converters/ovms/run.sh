@@ -174,6 +174,19 @@ if [ "$input_format" = "mlflow" ]; then
     echo "Model format detected: ${input_format}"
 fi
 
+extra_args="$FUSEML_EXTRA_ARGS"
+[ -n "$FUSEML_INPUT_SHAPE" ] && extra_args="$extra_args --input_shape $FUSEML_INPUT_SHAPE"
+[ -n "$FUSEML_SCALE" ] && extra_args="$extra_args --scale $FUSEML_SCALE"
+$FUSEML_REVERSE_INPUT_CHANNELS && extra_args="$extra_args --reverse_input_channels"
+[ -n "$FUSEML_LOG_LEVEL" ] && extra_args="$extra_args --log_level $FUSEML_LOG_LEVEL"
+[ -n "$FUSEML_INPUT" ] && extra_args="$extra_args --input $FUSEML_INPUT"
+[ -n "$FUSEML_OUTPUT" ] && extra_args="$extra_args --output $FUSEML_OUTPUT"
+[ -n "$FUSEML_MEAN_VALUES" ] && extra_args="$extra_args --mean_values $FUSEML_MEAN_VALUES"
+[ -n "$FUSEML_SCALE_VALUES" ] && extra_args="$extra_args --scale_values $FUSEML_SCALE_VALUES"
+[ -n "$FUSEML_DATA_TYPE" ] && extra_args="$extra_args --data_type $FUSEML_DATA_TYPE"
+[ -n "$FUSEML_BATCH" ] && extra_args="$extra_args --batch $FUSEML_BATCH"
+$FUSEML_STATIC_SHAPE && extra_args="$extra_args --static_shape"
+
 output_model_path=$output_model_base_path
 
 if [ "$output_format" = "$input_format" ]; then
@@ -188,10 +201,10 @@ elif [ "$output_format" = "openvino" ]; then
             output_model_path="${output_model_path}/$(basename ${input_model})/1"
             deployment_tools/model_optimizer/mo_tf.py --saved_model_dir "${input_model}" \
                 --saved_model_tags serve --output_dir "${output_model_path}" \
-                --batch 1 # OpenVINO cannot work with undefined input dimensions
+                $extra_args
             ;;
         onnx)
-            deployment_tools/model_optimizer/mo.py --input_model "${input_model}" --output_dir "${output_model_path}"
+            deployment_tools/model_optimizer/mo.py --input_model "${input_model}" --output_dir "${output_model_path}" $extra_args
             ;;
         *)
             echo "Conversion from format '${input_format}' to OpenVINO format not supported yet."

@@ -42,6 +42,18 @@ ENV FUSEML_INPUT_MODEL ""
 ENV FUSEML_INPUT_FORMAT "auto"
 ENV FUSEML_OUTPUT_MODEL ""
 ENV FUSEML_OUTPUT_FORMAT "openvino"
-
+# general conversion parameters (https://docs.openvino.ai/latest/openvino_docs_MO_DG_prepare_model_convert_model_Converting_Model.html#general-conversion-parameters)
+ENV FUSEML_INPUT_SHAPE ""
+ENV FUSEML_SCALE ""
+ENV FUSEML_REVERSE_INPUT_CHANNELS false
+ENV FUSEML_LOG_LEVEL "INFO"
+ENV FUSEML_INPUT ""
+ENV FUSEML_OUTPUT ""
+ENV FUSEML_MEAN_VALUES ""
+ENV FUSEML_SCALE_VALUES ""
+ENV FUSEML_DATA_TYPE ""
+ENV FUSEML_BATCH ""
+ENV FUSEML_STATIC_SHAPE false
+ENV FUSEML_EXTRA_ARGS ""
 
 CMD [ "run" ]

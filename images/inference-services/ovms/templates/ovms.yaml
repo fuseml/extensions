@@ -26,6 +26,7 @@ spec:
   plugin_config: #@ data.values.plugin_config
   batch_size: #@ data.values.batch_size
   shape: #@ data.values.shape
+  layout: #@ data.values.layout
   model_version_policy: #@ data.values.model_version_policy
   file_system_poll_wait_seconds: #@ data.values.file_system_poll_wait_seconds
   replicas: #@ data.values.replicas
@@ -35,6 +36,6 @@ spec:
   node_selector: {}
   security_context: {}
   service_type: ClusterIP
-  target_device: CPU
+  target_device: #@ data.values.target_device
   https_proxy: ""
   
