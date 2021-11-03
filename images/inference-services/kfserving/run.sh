@@ -34,7 +34,7 @@ if [ "${PREDICTOR}" = "auto" ]; then
     fi
 fi
 
-isvc="${ORG}-${PROJECT}"
+export isvc="${ORG}-${PROJECT}-${FUSEML_ENV_WORKFLOW_NAME}"
 case $PREDICTOR in
     # kfserving expects the tensorflow model to be under a numbered directory,
     # however mlflow saves the model under 'tfmodel', so if there is no directory

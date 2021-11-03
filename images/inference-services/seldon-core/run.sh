@@ -29,7 +29,7 @@ if [ "${PREDICTOR}" = "auto" ]; then
     PREDICTOR=$(mc cat ${model_bucket}/MLmodel | awk -F '.' '/loader_module:/ {print $2}')
 fi
 
-sd="${ORG}-${PROJECT}"
+export sd="${ORG}-${PROJECT}-${FUSEML_ENV_WORKFLOW_NAME}"
 case $PREDICTOR in
     sklearn)
         if ! mc ls ${model_bucket} | grep -q "model.joblib"; then
