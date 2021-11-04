@@ -23,7 +23,7 @@ OVMS_ISTIO_GATEWAY=ovms-gateway
 # same namespace by the OVMS installer extension and extracting the domain out of the
 # host wildcard configured in the form of '*.<domain>'
 DOMAIN=$(kubectl get Gateway ${OVMS_ISTIO_GATEWAY} -n ${NAMESPACE} -o jsonpath='{.spec.servers[0].hosts[0]}')
-ISTIO_HOST="${ORG}.${PROJECT}${DOMAIN/\*/}"
+ISTIO_HOST="${ORG}.${PROJECT}.${FUSEML_ENV_WORKFLOW_NAME}${DOMAIN/\*/}"
 APP_NAME="${ORG}-${PROJECT}-${FUSEML_ENV_WORKFLOW_NAME}"
 
 RESOURCES=null
