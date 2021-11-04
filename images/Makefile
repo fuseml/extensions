@@ -15,9 +15,9 @@ GIT_REF = $(shell git symbolic-ref -q --short HEAD || git describe --tags --abbr
 ifdef VERSION
 	IMAGE_TAG = $(VERSION)
 else
-# Use `dev` as a default version value when compiling in the main branch
+# Use `latest` as a default version value when compiling in the main branch
 ifeq ($(GIT_REF),main)
-	IMAGE_TAG = dev
+	IMAGE_TAG = latest
 # Use the reference name as a default version value when compiling in another branch/tag,
 else
 	IMAGE_TAG = $(GIT_REF)
