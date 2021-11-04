@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "${sd}-init-container-secret"
+  name: "${APP_NAME}-init-container-secret"
   annotations:
      serving.kubeflow.org/s3-endpoint: mlflow-minio:9000
      serving.kubeflow.org/s3-usehttps: "0"
@@ -18,40 +18,38 @@ stringData:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: "${sd}-seldon"
+  name: "${APP_NAME}-seldon"
 secrets:
-  - name: "${sd}-init-container-secret"
+  - name: "${APP_NAME}-init-container-secret"
 ---
 apiVersion: "machinelearning.seldon.io/v1alpha2"
 kind: "SeldonDeployment"
 metadata:
-  name: "${sd}"
+  name: "${APP_NAME}"
   labels:
-    fuseml/app-name: "${PROJECT}"
+    fuseml/app-name: "${APP_NAME}"
     fuseml/org: "${ORG}"
-    fuseml/workflow: "${FUSEML_ENV_WORKFLOW_NAME}"
     fuseml/app-guid: "${ORG}.${PROJECT}.${FUSEML_ENV_WORKFLOW_NAME}"
+    fuseml/workflow: "${FUSEML_ENV_WORKFLOW_NAME}"
   annotations:
     "seldon.io/istio-host": "${ISTIO_HOST}"
     "seldon.io/istio-gateway": "${FUSEML_ENV_WORKFLOW_NAMESPACE}/seldon-gateway"
 spec:
-  name: "${sd}"
+  name: "${APP_NAME}"
   protocol: "${PROTOCOL}"
   predictors:
     - name: "predictor"
       labels:
-        fuseml/app-name: "${PROJECT}"
-        fuseml/org: "${ORG}"
+        fuseml/app-name: "${APP_NAME}"
         fuseml/workflow: "${FUSEML_ENV_WORKFLOW_NAME}"
-        fuseml/app-guid: "${ORG}.${PROJECT}.${FUSEML_ENV_WORKFLOW_NAME}"
       replicas: 1
       graph:
         children: []
         implementation: "${PREDICTOR_SERVER}"
         modelUri: "${FUSEML_MODEL}"
-        envSecretRefName: "${sd}-init-container-secret"
+        envSecretRefName: "${APP_NAME}-init-container-secret"
         name: classifier
-        serviceAccountName: "${sd}-seldon"
+        serviceAccountName: "${APP_NAME}-seldon"
         parameters: ${PARAMETERS}
       componentSpecs:
         - spec:
