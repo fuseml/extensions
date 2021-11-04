@@ -26,6 +26,12 @@ DOMAIN=$(kubectl get Gateway ${OVMS_ISTIO_GATEWAY} -n ${NAMESPACE} -o jsonpath='
 ISTIO_HOST="${ORG}.${PROJECT}${DOMAIN/\*/}"
 APP_NAME="${ORG}-${PROJECT}-${FUSEML_ENV_WORKFLOW_NAME}"
 
+RESOURCES=null
+# set inference service container resources if specified
+if [ -n "${FUSEML_RESOURCES}" ]; then
+    RESOURCES="${FUSEML_RESOURCES}"
+fi
+
 cat << EOF > /opt/openvino/templates/values.yaml
 #@data/values
 ---
@@ -44,7 +50,17 @@ model_path: "${FUSEML_MODEL}"
 model_name: "${FUSEML_MODEL_NAME}"
 istio_host: "${ISTIO_HOST}"
 istio_gateway: "${OVMS_ISTIO_GATEWAY}"
+nireq: "${FUSEML_NIREQ}"
+plugin_config: '${FUSEML_PLUGIN_CONFIG//\"/\\\"}'
+batch_size: "${FUSEML_BATCH_SIZE}"
+shape: "${FUSEML_SHAPE}"
+layout: "${FUSEML_LAYOUT}"
+replicas: ${FUSEML_REPLICAS}
+resources: ${RESOURCES}
+target_device: "${FUSEML_TARGET_DEVICE}"
 EOF
+
+cat /opt/openvino/templates/values.yaml
 
 new_instance=true
 if kubectl get "ovms/ovms-${APP_NAME}" -n "${FUSEML_ENV_WORKFLOW_NAMESPACE}" > /dev/null 2>&1; then
