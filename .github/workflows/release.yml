@@ -30,7 +30,7 @@ jobs:
         run: |
           case "${GITHUB_REF}" in
             refs/heads/main)
-              TAG="dev"
+              TAG="latest"
               ;;
             refs/tags/v*)
               TAG=${GITHUB_REF/refs\/tags\//}
