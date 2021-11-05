@@ -44,7 +44,21 @@ case $PREDICTOR in
     # named '1', create it and copy the tensorflow model to it.
     tensorflow)
         if ! mc stat "${model_bucket}"/1 &> /dev/null ; then
-            mc cp -r "${model_bucket}"/tfmodel/ "${model_bucket}"/1
+            mlmodel=$(mc cat "${model_bucket}"/MLmodel)
+            flavor="$(echo "${mlmodel}" | grep -E -o '^\s{2}([a-z].*[a-z])' | grep -v python_function | tr -d ' ')"
+            case ${flavor} in
+                tensorflow)
+                    mc cp -r "${model_bucket}"/tfmodel/ "${model_bucket}"/1
+                    ;;
+                keras)
+                    mc cp -r "${model_bucket}"/data/model/ "${model_bucket}"/1
+                    ;;
+                *)
+                    echo "Unsupported: ${flavor}"
+                    echo "ERROR: Only Tensorflow/Keras (SavedModel) formats are supported by the tensorflow predictor"
+                    exit 1
+                    ;;
+            esac
         fi
         if [ -z "${RUNTIME_VERSION}" ]; then
             export RUNTIME_VERSION=$(mc cat "${model_bucket}"/requirements.txt | awk -F '=' '/tensorflow/ {print $3; exit}')
