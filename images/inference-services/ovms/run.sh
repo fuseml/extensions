@@ -1,8 +1,10 @@
 #!/bin/sh
 
-set -ex
+set -e
 set -u
 set -o pipefail
+
+$FUSEML_VERBOSE && set -x
 
 . /opt/fuseml/scripts/helpers.sh
 
@@ -15,6 +17,9 @@ else
     ORG=$(head /dev/urandom | LC_ALL=C tr -dc a-z0-9 | head -c 6)
     PROJECT=$(head /dev/urandom | LC_ALL=C tr -dc a-z0-9 | head -c 6)
 fi
+APP_NAME="${ORG}-${PROJECT}-${FUSEML_ENV_WORKFLOW_NAME}"
+
+[ -n "$FUSEML_APP_NAME" ] && APP_NAME=$FUSEML_APP_NAME
 
 NAMESPACE=${FUSEML_ENV_WORKFLOW_NAMESPACE}
 OVMS_ISTIO_GATEWAY=ovms-gateway
@@ -23,8 +28,7 @@ OVMS_ISTIO_GATEWAY=ovms-gateway
 # same namespace by the OVMS installer extension and extracting the domain out of the
 # host wildcard configured in the form of '*.<domain>'
 DOMAIN=$(kubectl get Gateway ${OVMS_ISTIO_GATEWAY} -n ${NAMESPACE} -o jsonpath='{.spec.servers[0].hosts[0]}')
-ISTIO_HOST="${ORG}.${PROJECT}.${FUSEML_ENV_WORKFLOW_NAME}${DOMAIN/\*/}"
-APP_NAME="${ORG}-${PROJECT}-${FUSEML_ENV_WORKFLOW_NAME}"
+ISTIO_HOST="${APP_NAME}${DOMAIN/\*/}"
 
 RESOURCES=null
 # set inference service container resources if specified
@@ -38,9 +42,9 @@ cat << EOF > /opt/openvino/templates/values.yaml
 namespace: "${NAMESPACE}"
 name_suffix: "${APP_NAME}"
 labels:
-  fuseml/app-name: "${PROJECT}"
+  fuseml/app-name: "${APP_NAME}"
   fuseml/org: "${ORG}"
-  fuseml/app-guid: "${ORG}.${PROJECT}"
+  fuseml/app-guid: "${ORG}.${PROJECT}.${FUSEML_ENV_WORKFLOW_NAME}"
   fuseml/workflow: "${FUSEML_ENV_WORKFLOW_NAME}"
 ovms_image_tag: "${FUSEML_OVMS_IMAGE_TAG}"
 aws_access_key_id: "${AWS_ACCESS_KEY_ID}"
@@ -60,7 +64,7 @@ resources: ${RESOURCES}
 target_device: "${FUSEML_TARGET_DEVICE}"
 EOF
 
-cat /opt/openvino/templates/values.yaml
+$FUSEML_VERBOSE && cat /opt/openvino/templates/values.yaml
 
 new_instance=true
 if kubectl get "ovms/ovms-${APP_NAME}" -n "${FUSEML_ENV_WORKFLOW_NAMESPACE}" > /dev/null 2>&1; then
