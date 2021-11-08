@@ -47,7 +47,21 @@ case $PREDICTOR in
         ;;
     tensorflow)
         if ! mc stat "${model_bucket}"/1 &> /dev/null ; then
-            mc cp -r "${model_bucket}"/tfmodel/ "${model_bucket}"/1
+            mlmodel=$(mc cat "${model_bucket}"/MLmodel)
+            flavor="$(echo "${mlmodel}" | grep -E -o '^\s{2}([a-z].*[a-z])' | grep -v python_function | tr -d ' ')"
+            case ${flavor} in
+                tensorflow)
+                    mc cp -r "${model_bucket}"/tfmodel/ "${model_bucket}"/1
+                    ;;
+                keras)
+                    mc cp -r "${model_bucket}"/data/model/ "${model_bucket}"/1
+                    ;;
+                *)
+                    echo "Unsupported: ${flavor}"
+                    echo "ERROR: Only Tensorflow/Keras (SavedModel) formats are supported by the tensorflow predictor"
+                    exit 1
+                    ;;
+            esac
         fi
         # 'classifier' comes from spec.predictors.graph.name
         prediction_url_path="${APP_NAME}/v1/models/classifier:predict"
