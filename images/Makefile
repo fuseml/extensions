@@ -8,7 +8,7 @@ SELDON_PREDICTOR_REPO ?= seldon-core-predictor
 OVMS_PREDICTOR_REPO ?= ovms-predictor
 OVMS_CONVERTER_REPO ?= ovms-converter
 MLFLOW_REPO ?= mlflow
-MLFLOW_VERSION ?= 1.19.0
+MLFLOW_VERSION ?= 1.20.2
 
 GIT_REF = $(shell git symbolic-ref -q --short HEAD || git describe --tags --abbrev=0 --exact-match)
 

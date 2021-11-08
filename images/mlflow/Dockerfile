@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3 AS build
 
-ARG MLFLOW_VERSION=1.19.0
+ARG MLFLOW_VERSION=1.20.2
 
 RUN conda install -c conda-forge conda-pack 
 
