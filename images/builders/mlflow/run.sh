@@ -29,7 +29,7 @@ get_tag() {
     done <"${file}"
 
     # insert the date to allow new container image versions to invalidate previously built builder containers
-    printf "$(cat /build-timestamp.txt)$dependencies$BUILDARGS" | sort | cksum | cut -f 1 -d ' '
+    printf "$(cat /build-timestamp.txt)${dependencies}${BUILDARGS}" | sort | cksum | cut -f 1 -d ' '
 }
 
 
@@ -69,6 +69,7 @@ $(cat requirements.txt | sed 's/^/    - /')
 EOF
 
 fi
+
 
 tag=$(get_tag)
 

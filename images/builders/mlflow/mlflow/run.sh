@@ -4,17 +4,13 @@ set -e
 set -u
 set -o pipefail
 
-set_exp_name=""
-if [ -e .fuseml/_project ]; then
-    set_exp_name="--experiment-name $(cat .fuseml/_org).$(cat .fuseml/_project)"
+if [ -z "$FUSEML_MLFLOW_EXPERIMENT" ] && [ -e .fuseml/_project ]; then
+    FUSEML_MLFLOW_EXPERIMENT="$(cat .fuseml/_org).$(cat .fuseml/_project)"
 fi
 
-mlflow run --no-conda ${set_exp_name} . 2>&1 | tee train.log
-
-run_id=$(grep -oEm1 '[a-f0-9]{32}' train.log)
-model_uri="$(mlflow runs describe --run-id ${run_id} | grep -oEm1 's3.*artifacts')/model"
-
-if [ -n "$TASK_RESULT" ]; then
-    printf "${model_uri}" > /tekton/results/${TASK_RESULT}
-fi
-
+exec mlflow_run --workdir . \
+                --entrypoint ${FUSEML_MLFLOW_ENTRYPOINT} \
+                --entrypoint_args ${FUSEML_MLFLOW_ENTRYPOINT_ARGS} \
+                --experiment ${FUSEML_MLFLOW_EXPERIMENT} \
+                --artifact_subpath ${FUSEML_MLFLOW_ARTIFACT_PATH} \
+                --save_result_to_file /tekton/results/${TASK_RESULT}
