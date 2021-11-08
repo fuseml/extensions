@@ -4,8 +4,8 @@ kind: Secret
 metadata:
   name: "${APP_NAME}-storage"
   annotations:
-     serving.kubeflow.org/s3-endpoint: ${S3_ENDPOINT}
-     serving.kubeflow.org/s3-usehttps: "0"
+     serving.kserve.io/s3-endpoint: ${S3_ENDPOINT}
+     serving.kserve.io/s3-usehttps: "0"
 type: Opaque
 stringData:
   AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
@@ -14,11 +14,11 @@ stringData:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: "${APP_NAME}-kfserving"
+  name: "${APP_NAME}-kserve"
 secrets:
   - name: "${APP_NAME}-storage"
 ---
-apiVersion: "serving.kubeflow.org/v1beta1"
+apiVersion: "serving.kserve.io/v1beta1"
 kind: "InferenceService"
 metadata:
   name: "${APP_NAME}"
@@ -29,7 +29,7 @@ metadata:
     fuseml/app-guid: "${ORG}.${PROJECT}.${FUSEML_ENV_WORKFLOW_NAME}"
 spec:
   predictor:
-    serviceAccountName: "${APP_NAME}-kfserving"
+    serviceAccountName: "${APP_NAME}-kserve"
     timeout: 60
     ${PREDICTOR}:
       protocolVersion: ${PROTOCOL_VERSION}

@@ -39,7 +39,7 @@ if [ "${PREDICTOR}" = "auto" ]; then
 fi
 
 case $PREDICTOR in
-    # kfserving expects the tensorflow model to be under a numbered directory,
+    # kserve expects the tensorflow model to be under a numbered directory,
     # however mlflow saves the model under 'tfmodel' or 'data/model', so if there is no directory
     # named '1', create it and copy the tensorflow model to it.
     tensorflow)
@@ -65,7 +65,7 @@ case $PREDICTOR in
         fi
         prediction_url_path="${APP_NAME}:predict"
         ;;
-    # kfserving expects the sklearn model file as model.joblib however mlflow
+    # kserve expects the sklearn model file as model.joblib however mlflow
     # saves the model as model.pkl, so if there is no model.joblib, create a
     # copy named model.joblib from model.pkl
     sklearn)
