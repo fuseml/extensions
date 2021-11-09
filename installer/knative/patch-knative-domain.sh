@@ -15,6 +15,17 @@ if [ -z "$ISTIO_DOMAIN" ]; then
   fi
 fi
 
-kubectl -n knative-serving patch configmap config-domain --type merge \
-  -p "{\"data\":{\"$ISTIO_DOMAIN\":\"\"}}"
+
+# Patch the Knative config with the domain. Retries 5 times with a 3s delay between each attempt,
+# as the net-istio config validation webhook might not be ready yet.
+retries=0
+until [ "$retries" -ge 5 ]
+do
+   kubectl -n knative-serving patch configmap config-domain --type merge \
+    -p "{\"data\":{\"$ISTIO_DOMAIN\":\"\"}}" && break
+   retries=$((retries+1)) 
+   sleep 3
+done
+
+
 
