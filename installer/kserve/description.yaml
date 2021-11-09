@@ -1,0 +1,52 @@
+name: kserve
+product: kserve
+version: "0.7.0"
+description: |
+  Serverless Inferencing on Kubernetes
+requires:
+  - knative
+  - cert-manager
+install:
+  - type: manifest
+    location: https://github.com/kserve/kserve/releases/download/v0.7.0/kserve.yaml
+    waitfor:
+      - namespace: kserve
+        selector: control-plane=kserve-controller-manager
+  - type: kustomize
+    location: kustomize
+    waitfor:
+      - namespace: kserve
+        selector: app.kubernetes.io/component=kserve-models-web-app
+uninstall:
+  - type: kustomize
+    location: kustomize
+  - type: manifest
+    location: https://github.com/kserve/kserve/releases/download/v0.7.0/kserve.yaml
+services:
+  - id: API
+    resource: kserve-api
+    category: prediction-serving
+    description: kserve prediction service API
+    endpoints:
+      - url: http://kubernetes.default.svc
+        type: internal
+  - id: UI
+    resource: kserve-ui
+    category: UI
+    description: KServe UI
+gateways:
+  - name: kserve-web-app
+    namespace: kserve
+    servicehost: kserve-models-web-app
+    port: 80
+rolerules:
+  - apigroups:
+      - serving.kserve.io
+    resources:
+      - inferenceservices
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - watch

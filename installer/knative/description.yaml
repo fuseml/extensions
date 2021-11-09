@@ -1,20 +1,20 @@
 name: knative
 product: knative
-version: "0.24.0"
+version: "1.0.0"
 description: |
   Kubernetes-based, scale-to-zero, request-driven compute
 install:
   - type: manifest
-    location: https://github.com/knative/serving/releases/download/v0.24.0/serving-crds.yaml
+    location: https://github.com/knative/serving/releases/download/knative-v1.0.0/serving-crds.yaml
     namespace:
   - type: manifest
-    location: https://github.com/knative/serving/releases/download/v0.24.0/serving-core.yaml
+    location: https://github.com/knative/serving/releases/download/knative-v1.0.0/serving-core.yaml
     namespace: knative-serving
     waitfor:
       - namespace: knative-serving
-        selector: serving.knative.dev/release=v0.24.0
+        selector: app.kubernetes.io/part-of=knative-serving
   - type: manifest
-    location: https://github.com/knative-sandbox/net-istio/releases/download/v0.24.0/release.yaml
+    location: https://github.com/knative-sandbox/net-istio/releases/download/knative-v1.0.0/release.yaml
     waitfor:
       - kind: deployment
         selector: networking.knative.dev/ingress-provider=istio
@@ -25,8 +25,8 @@ install:
     location: patch-knative-domain.sh
 uninstall:
   - type: manifest
-    location: https://github.com/knative-sandbox/net-istio/releases/download/v0.24.0/release.yaml
+    location: https://github.com/knative-sandbox/net-istio/releases/download/knative-v1.0.0/release.yaml
   - type: manifest
-    location: https://github.com/knative/serving/releases/download/v0.24.0/serving-core.yaml
+    location: https://github.com/knative/serving/releases/download/knative-v1.0.0/serving-core.yaml
   - type: manifest
-    location: https://github.com/knative/serving/releases/download/v0.24.0/serving-crds.yaml
+    location: https://github.com/knative/serving/releases/download/knative-v1.0.0/serving-crds.yaml

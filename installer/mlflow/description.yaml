@@ -1,6 +1,6 @@
 name: mlflow
 product: mlflow
-version: "1.19.0"
+version: "1.20.2"
 description: |
   MLFlow is an open source platform specialized in tracking ML experiments, and packaging and deploying ML models.
 namespace: mlflow

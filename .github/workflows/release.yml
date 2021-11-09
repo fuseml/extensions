@@ -3,8 +3,8 @@ name: Release
 on:
   workflow_dispatch:
   push:
-    tags: [ "v*" ]
-    branches: [ main ]
+    tags: ["v*"]
+    branches: [main]
 
 jobs:
   docker-images:
@@ -41,7 +41,7 @@ jobs:
           esac
           echo "REGISTRY=ghcr.io/${{ github.repository_owner }}" >> $GITHUB_ENV
           echo "VERSION=${TAG}" >> $GITHUB_ENV
-         
+
       - name: Build and publish multi-arch images
         run: |
           make docker-release
