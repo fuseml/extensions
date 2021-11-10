@@ -4,6 +4,8 @@ set -e
 set -u
 set -o pipefail
 
+$FUSEML_VERBOSE && set -x
+
 if [ -z "$FUSEML_MLFLOW_EXPERIMENT" ] && [ -e .fuseml/_project ]; then
     FUSEML_MLFLOW_EXPERIMENT="$(cat .fuseml/_org).$(cat .fuseml/_project)"
 fi
