@@ -64,7 +64,7 @@ docker-build-mlflow:
 	docker build ./mlflow -t ${REGISTRY}/${MLFLOW_REPO}:${MLFLOW_VERSION} --build-arg MLFLOW_VERSION="$(MLFLOW_VERSION)"
 
 docker-push-builder-mlflow: docker-build-builder-mlflow
-	docker build ./builders/mlflow -t ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG}
+	docker push ${REGISTRY}/${MLFLOW_BUILDER_REPO}:${IMAGE_TAG}
 
 docker-push-predictor-base: docker-build-predictor-base
 	docker push ${REGISTRY}/${BASE_PREDICTOR_REPO}:${IMAGE_TAG}

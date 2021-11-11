@@ -44,7 +44,15 @@ ONBUILD RUN env=$(awk '/name:/ {print $2}' /env/conda.yaml) && \
 FROM ${BASE}
 
 COPY .fuseml/run.sh /usr/local/bin/run
+COPY .fuseml/mlflow_run.py /usr/local/bin/mlflow_run
 
 WORKDIR /workspace
+
+ENV PYTHONUNBUFFERED=x
+ENV FUSEML_MLFLOW_EXPERIMENT ""
+ENV FUSEML_MLFLOW_ENTRYPOINT main
+ENV FUSEML_MLFLOW_ENTRYPOINT_ARGS ""
+ENV FUSEML_MLFLOW_ARTIFACT_PATH "model"
+ENV FUSEML_VERBOSE false
 
 CMD [ "run" ]
