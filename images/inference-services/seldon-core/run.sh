@@ -63,11 +63,39 @@ case $PREDICTOR in
                     ;;
             esac
         fi
-        # 'classifier' comes from spec.predictors.graph.name
-        prediction_url_path="${APP_NAME}/v1/models/classifier:predict"
+        # second '${APP_NAME}' comes from spec.predictors.graph.name
+        prediction_url_path="${APP_NAME}/v1/models/${APP_NAME}:predict"
         export PREDICTOR_SERVER="TENSORFLOW_SERVER"
         export PROTOCOL=tensorflow
         ;;
+    triton)
+        prediction_url_path="${APP_NAME}/v2/models/${APP_NAME}/infer"
+        export PREDICTOR_SERVER="TRITON_SERVER"
+        export FUSEML_MODEL="${FUSEML_MODEL}/triton"
+        export PROTOCOL=kfserving
+        if ! mc stat "${model_bucket}"/triton &> /dev/null ; then
+            mlmodel=$(mc cat "${model_bucket}"/MLmodel)
+            flavor="$(echo "${mlmodel}" | grep -E -o '^\s{2}([a-z].*[a-z])' | grep -v python_function | tr -d ' ')"
+            echo $mlmodel
+            echo $flavor
+            case ${flavor} in
+                tensorflow)
+                    mc cp -r "${model_bucket}"/tfmodel/ "${model_bucket}"/triton/"${APP_NAME}"/1/model.savedmodel
+                    ;;
+                keras)
+                    mc cp -r "${model_bucket}"/data/model/ "${model_bucket}"/triton/"${APP_NAME}"/1/model.savedmodel
+                    ;;
+                onnx)
+                    model_file="$(echo "${mlmodel}" | awk '/data:/ { print $2; exit }')"
+                    mc cp -r "${model_bucket}"/"${model_file}" "${model_bucket}"/triton/"${APP_NAME}"/1/
+                    ;;
+                *)
+                    echo "Unsupported: ${flavor}"
+                    echo "ERROR: Only Tensorflow/Keras (SavedModel) and ONNX formats are supported"
+                    exit 1
+                    ;;
+            esac
+        fi
 esac
 
 # Gateway has host info in the form of '*.seldon.172.18.0.2.nip.io' so we need to add a prefix

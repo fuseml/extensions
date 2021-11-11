@@ -48,13 +48,13 @@ spec:
         implementation: "${PREDICTOR_SERVER}"
         modelUri: "${FUSEML_MODEL}"
         envSecretRefName: "${APP_NAME}-init-container-secret"
-        name: classifier
+        name: "${APP_NAME}"
         serviceAccountName: "${APP_NAME}-seldon"
         parameters: ${PARAMETERS}
       componentSpecs:
         - spec:
             containers:
-            - name: classifier
+            - name: "${APP_NAME}"
               livenessProbe:
                 initialDelaySeconds: 120
                 failureThreshold: 200
