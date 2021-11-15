@@ -1,0 +1,24 @@
+#@data/values-schema
+---
+ifs:
+  namespace: default
+  #@schema/type any=True
+  codeset:
+  #@schema/type any=True
+  project:
+  #@schema/type any=True
+  workflow:
+  #@schema/type any=True
+  appName:
+  predictor:
+    type: "sklearn"
+    #@schema/type any=True
+    runtimeVersion:
+    #@schema/type any=True
+    resources:
+  model:
+    endpoint: ""
+    storageUri: ""
+    secretData:
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
