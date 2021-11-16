@@ -2,7 +2,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:template", "template")
 #@ load("@ytt:overlay", "overlay")
-#@ load("ifs.lib.yaml", "labels")
+#@ load("ifs.lib.yaml", "labels", "name")
 
 #@ def predictors():
 sklearn:
@@ -19,7 +19,7 @@ triton:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: #@ ifs.appName + "-kserve"
+  name: #@ "{}-kserve".format(name(data.values.ifs))
   namespace: #@ data.values.ifs.namespace
   labels: #@ labels(data.values.ifs)
   annotations:
@@ -32,22 +32,22 @@ stringData: #@ data.values.ifs.model.secretData
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: #@ ifs.appName + "-kserve"
+  name: #@ "{}-kserve".format(name(data.values.ifs))
   namespace: #@ data.values.ifs.namespace
   labels: #@ labels(data.values.ifs)
 secrets:
-  - name: #@ ifs.appName + "-kserve"
+  - name: #@ "{}-kserve".format(name(data.values.ifs))
 
 ---
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
-  name: #@ ifs.appName
+  name: #@ name(data.values.ifs)
   namespace: #@ data.values.ifs.namespace
   labels: #@ labels(data.values.ifs)
 spec:
   predictor:
-    serviceAccountName: #@ ifs.appName + "-kserve"
+    serviceAccountName: #@ "{}-kserve".format(name(data.values.ifs))
     timeout: 60
     #@yaml/text-templated-strings
     (@= data.values.ifs.predictor.type @):
