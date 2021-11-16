@@ -87,7 +87,7 @@ else
     $FUSEML_VERBOSE && cat conda.yaml
     $FUSEML_VERBOSE && cat .fuseml/Dockerfile
 
-    /kaniko/executor --insecure --dockerfile=.fuseml/Dockerfile  --context=./ --destination=${registry}/${repository}:${tag} $BUILDARGS
+    /kaniko/executor --insecure --dockerfile=.fuseml/Dockerfile  --context=./ --destination=${registry}/${repository}:${tag} --compressed-caching=${FUSEML_COMPRESSED_CACHING} $BUILDARGS
 fi
 
 printf ${destination} > /tekton/results/${TASK_RESULT}

@@ -47,5 +47,7 @@ ENV FUSEML_MINICONDA_VERSION ""
 ENV FUSEML_INTEL_OPTIMIZED false
 ENV FUSEML_BASE_IMAGE ""
 ENV FUSEML_VERBOSE false
+# Set to false to reduce memory usage with larger images and avoid OOM problems
+ENV FUSEML_COMPRESSED_CACHING true
 
 ENTRYPOINT ["run"]
