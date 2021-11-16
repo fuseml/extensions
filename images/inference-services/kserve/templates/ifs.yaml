@@ -19,7 +19,7 @@ triton:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: #@ inferenceService.appName + "-kserve"
+  name: #@ ifs.appName + "-kserve"
   namespace: #@ data.values.ifs.namespace
   labels: #@ labels(data.values.ifs)
   annotations:
@@ -32,22 +32,22 @@ stringData: #@ data.values.ifs.model.secretData
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: #@ inferenceService.appName + "-kserve"
+  name: #@ ifs.appName + "-kserve"
   namespace: #@ data.values.ifs.namespace
   labels: #@ labels(data.values.ifs)
 secrets:
-  - name: #@ inferenceService.appName + "-kserve"
+  - name: #@ ifs.appName + "-kserve"
 
 ---
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
-  name: #@ inferenceService.appName
+  name: #@ ifs.appName
   namespace: #@ data.values.ifs.namespace
   labels: #@ labels(data.values.ifs)
 spec:
   predictor:
-    serviceAccountName: #@ inferenceService.appName + "-kserve"
+    serviceAccountName: #@ ifs.appName + "-kserve"
     timeout: 60
     #@yaml/text-templated-strings
     (@= data.values.ifs.predictor.type @):
