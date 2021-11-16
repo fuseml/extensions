@@ -1,5 +1,13 @@
+#@ def name(inferenceService):
+#@  if inferenceService.appName:
+#@    return inferenceService.appName
+#@  else:
+#@    return inferenceService.project + "-" + inferenceService.codeset + "-" + inferenceService.workflow
+#@  end
+#@ end
+
 #@ def labels(inferenceService):
-fuseml/app-name: #@ inferenceService.appName
+fuseml/app-name: #@ name(inferenceService)
 #@ if/end inferenceService.project:
 fuseml/org: #@ inferenceService.project
 #@ if/end inferenceService.codeset and inferenceService.project and inferenceService.workflow:
