@@ -47,7 +47,9 @@ ENV FUSEML_MINICONDA_VERSION ""
 ENV FUSEML_INTEL_OPTIMIZED false
 ENV FUSEML_BASE_IMAGE ""
 ENV FUSEML_VERBOSE false
-# Set to false to reduce memory usage with larger images and avoid OOM problems
-ENV FUSEML_COMPRESSED_CACHING true
+# Compressed caching is set to false by default to reduce memory usage with larger
+# images and avoid OOM problems. Set this flag to true to enable compressed caching
+# and reduce the image build time.
+ENV FUSEML_COMPRESSED_CACHING false
 
 ENTRYPOINT ["run"]
