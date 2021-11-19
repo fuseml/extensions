@@ -6,7 +6,7 @@ description: |
 namespace: mlflow
 install:
   - type: helm
-    location: https://github.com/fuseml/extensions/raw/main/charts/mlflow-0.0.1.tgz
+    location: https://github.com/fuseml/extensions/raw/release-0.3/charts/mlflow-0.0.1.tgz
     values:
 uninstall:
   - type: helm
